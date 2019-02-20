@@ -1,6 +1,6 @@
-***Beth-go (Better Ethereum Library)***
+***LibETH-go (Ethereum Library)***
 
-Beth is a library that will provide functions that can interact with Ethereum consistently, given the issues that are observed in Ethereum. The major functions in this library (along with proposed code design) is discussed as follows:
+LibETH is a library that will provide functions that can interact with Ethereum consistently, given the issues that are observed in Ethereum. The major functions in this library (along with proposed code design) is discussed as follows:
 
 **Transact**
 
