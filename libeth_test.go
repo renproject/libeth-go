@@ -1,10 +1,9 @@
-package beth_test
+package libeth_test
 
 import (
 	"context"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"math"
 	"math/big"
 	"math/rand"
@@ -17,37 +16,24 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/republicprotocol/beth-go"
-	"github.com/republicprotocol/beth-go/test"
+	"github.com/renproject/libeth-go"
+	"github.com/renproject/libeth-go/test"
 	"github.com/republicprotocol/co-go"
 )
 
 var _ = Describe("contracts", func() {
 
-	newAccount := func(network, keystorePath string, passphrase string) (beth.Account, error) {
-		// Open keystore file
-		keyin, err := os.Open(keystorePath)
+	newAccount := func(network string) (libeth.Account, error) {
+		key, err := crypto.HexToECDSA(os.Getenv(network))
 		if err != nil {
 			return nil, err
 		}
-		data, err := ioutil.ReadAll(keyin)
-		if err != nil {
-			return nil, err
-		}
-
-		// Parse the json data to a key object
-		key, err := keystore.DecryptKey(data, passphrase)
-		if err != nil {
-			return nil, err
-		}
-
-		return beth.NewAccount(fmt.Sprintf("https://%s.infura.io", network), key.PrivateKey)
+		return libeth.NewAccount(fmt.Sprintf("https://%s.infura.io", network), key)
 	}
 
-	bethTest := func(network string, account beth.Account) (*test.Bethtest, error) {
+	libethTest := func(network string, account libeth.Account) (*test.Bethtest, error) {
 		// Ropsten : 0x46bcff69b2d5a677c40c05c1f034ef7bf0ee4742
 		// Kovan : 0x055d30956deea82bfe0f99a2771dcc36a18dc9bb
 		contractAddr := common.Address{}
@@ -63,7 +49,7 @@ var _ = Describe("contracts", func() {
 		return test.NewBethtest(contractAddr, bind.ContractBackend(account.EthClient()))
 	}
 
-	elementExists := func(ctx context.Context, conn beth.Client, contract *test.Bethtest, val *big.Int) (exists bool) {
+	elementExists := func(ctx context.Context, conn libeth.Client, contract *test.Bethtest, val *big.Int) (exists bool) {
 		exists = false
 		_ = conn.Get(ctx, func() (err error) {
 			_, exists, err = contract.Get(&bind.CallOpts{}, val)
@@ -72,7 +58,7 @@ var _ = Describe("contracts", func() {
 		return
 	}
 
-	read := func(ctx context.Context, conn beth.Client, contract *test.Bethtest) (*big.Int, error) {
+	read := func(ctx context.Context, conn libeth.Client, contract *test.Bethtest) (*big.Int, error) {
 		newVal, err := contract.Read(&bind.CallOpts{})
 		if err != nil {
 			return nil, err
@@ -81,7 +67,7 @@ var _ = Describe("contracts", func() {
 		return newVal, nil
 	}
 
-	setInt := func(account beth.Account, contract *test.Bethtest, val *big.Int, waitBlocks int64) error {
+	setInt := func(account libeth.Account, contract *test.Bethtest, val *big.Int, waitBlocks int64) error {
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 		defer cancel()
@@ -100,10 +86,11 @@ var _ = Describe("contracts", func() {
 			return newVal.Cmp(val) == 0
 		}
 
-		return account.Transact(ctx, nil, f, postCondition, waitBlocks)
+		_, err := account.Transact(ctx, libeth.Fast, nil, f, postCondition, waitBlocks)
+		return err
 	}
 
-	increment := func(account beth.Account, contract *test.Bethtest, val *big.Int, waitBlocks int64) error {
+	increment := func(account libeth.Account, contract *test.Bethtest, val *big.Int, waitBlocks int64) error {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Minute)
 		defer cancel()
 
@@ -123,10 +110,11 @@ var _ = Describe("contracts", func() {
 			return newVal.Cmp(val) >= 0
 		}
 
-		return account.Transact(ctx, nil, f, postCondition, waitBlocks)
+		_, err := account.Transact(ctx, libeth.Fast, nil, f, postCondition, waitBlocks)
+		return err
 	}
 
-	appendToList := func(values []*big.Int, contract *test.Bethtest, account beth.Account, waitBlocks int64) []error {
+	appendToList := func(values []*big.Int, contract *test.Bethtest, account libeth.Account, waitBlocks int64) []error {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Duration((len(values)*10)+int(waitBlocks))*time.Minute)
 		defer cancel()
 
@@ -159,13 +147,13 @@ var _ = Describe("contracts", func() {
 			}
 
 			// Execute transaction
-			errs[i] = account.Transact(ctx, preCondition, f, postCondition, waitBlocks)
+			_, errs[i] = account.Transact(ctx, libeth.Fast, preCondition, f, postCondition, waitBlocks)
 		})
 
 		return errs
 	}
 
-	size := func(ctx context.Context, conn beth.Client, contract *test.Bethtest) (size *big.Int, err error) {
+	size := func(ctx context.Context, conn libeth.Client, contract *test.Bethtest) (size *big.Int, err error) {
 		size = big.NewInt(0)
 		err = conn.Get(ctx, func() (err error) {
 			size, err = contract.Size(&bind.CallOpts{})
@@ -174,7 +162,7 @@ var _ = Describe("contracts", func() {
 		return
 	}
 
-	deleteFromList := func(values []*big.Int, contract *test.Bethtest, account beth.Account, waitBlocks int64) []error {
+	deleteFromList := func(values []*big.Int, contract *test.Bethtest, account libeth.Account, waitBlocks int64) []error {
 		// Context
 		ctx, cancel := context.WithTimeout(context.Background(), time.Duration((len(values)*10)+int(waitBlocks))*time.Minute)
 		defer cancel()
@@ -216,7 +204,7 @@ var _ = Describe("contracts", func() {
 			}
 
 			// Execute delete tx
-			errs[i] = account.Transact(ctx, preCondition, f, postCondition, waitBlocks)
+			_, errs[i] = account.Transact(ctx, libeth.Fast, preCondition, f, postCondition, waitBlocks)
 		})
 
 		return errs
@@ -256,21 +244,19 @@ var _ = Describe("contracts", func() {
 		return err
 	}
 
-	loadAddressBook := func(network string) beth.AddressBook {
+	loadAddressBook := func(network string) libeth.AddressBook {
 		switch network {
 		case "ropsten":
-			return beth.DefaultAddressBook(3)
+			return libeth.DefaultAddressBook(3)
 		case "kovan":
-			return beth.DefaultAddressBook(42)
+			return libeth.DefaultAddressBook(42)
 		default:
-			return beth.AddressBook{}
+			return libeth.AddressBook{}
 		}
 	}
 
 	rand.Seed(time.Now().Unix())
 	testedNetworks := []string{"ropsten", "kovan"}
-
-	keystorePaths := []string{"test/keystore.ropsten.json", "test/keystore.kovan.json"}
 	addresses := []string{"3a5e0b1158ca9ce861a80c3049d347a3f1825db0", "6b9b3e47c4c73db44f6a34064b21da8c62692a8c"}
 
 	tableParallelism := []struct {
@@ -303,10 +289,10 @@ var _ = Describe("contracts", func() {
 				It("should write to the contract and not return an error", func() {
 					for i := 0; i < int(n); i++ {
 
-						account, err := newAccount(network, fmt.Sprintf("test/keystore.%s.json", network), os.Getenv("passphrase"))
+						account, err := newAccount(network)
 						Expect(err).ShouldNot(HaveOccurred())
 
-						contract, err := bethTest(network, account)
+						contract, err := libethTest(network, account)
 						Expect(err).ShouldNot(HaveOccurred())
 
 						// Generate random value
@@ -342,9 +328,9 @@ var _ = Describe("contracts", func() {
 
 				It("should write to the contract and not return an error", func() {
 
-					account, err := newAccount(network, fmt.Sprintf("test/keystore.%s.json", network), os.Getenv("passphrase"))
+					account, err := newAccount(network)
 					Expect(err).ShouldNot(HaveOccurred())
-					contract, err := bethTest(network, account)
+					contract, err := libethTest(network, account)
 					Expect(err).ShouldNot(HaveOccurred())
 
 					// Retrieve original length of array
@@ -356,7 +342,7 @@ var _ = Describe("contracts", func() {
 					values := randomValues(n)
 					errs := appendToList(values, contract, account, waitBlocks)
 					err = handleErrors(errs)
-					if err != nil && err != beth.ErrPreConditionCheckFailed {
+					if err != nil && err != libeth.ErrPreConditionCheckFailed {
 						Expect(err).ShouldNot(HaveOccurred())
 					}
 
@@ -364,7 +350,7 @@ var _ = Describe("contracts", func() {
 					errs = appendToList(values[:1], contract, account, waitBlocks)
 					err = handleErrors(errs)
 					Expect(err).Should(HaveOccurred())
-					Expect(err).Should(Equal(beth.ErrPreConditionCheckFailed))
+					Expect(err).Should(Equal(libeth.ErrPreConditionCheckFailed))
 
 					// Attempt to delete all newly added elements from the list
 					errs = deleteFromList(values, contract, account, waitBlocks)
@@ -374,7 +360,7 @@ var _ = Describe("contracts", func() {
 					errs = deleteFromList(values[:1], contract, account, waitBlocks)
 					err = handleErrors(errs)
 					Expect(err).Should(HaveOccurred())
-					Expect(err).Should(Equal(beth.ErrPreConditionCheckFailed))
+					Expect(err).Should(Equal(libeth.ErrPreConditionCheckFailed))
 
 					// Retrieve length of array after deleting the newly added elements
 					newLength, err := size(context.Background(), account.Client(), contract)
@@ -399,11 +385,11 @@ var _ = Describe("contracts", func() {
 					}
 
 					co.ParForAll(toAddrs, func(i int) {
-						account, err := newAccount(network, keystorePaths[i], os.Getenv("passphrase"))
+						account, err := newAccount(network)
 						Expect(err).ShouldNot(HaveOccurred())
 						// Transfer 1 Eth to the other account's address
 						value, _ := big.NewFloat(1 * math.Pow10(18)).Int(nil)
-						if _, err := account.Transfer(ctx, toAddrs[i], value, waitBlocks); err != nil {
+						if _, err := account.Transfer(ctx, toAddrs[i], value, libeth.Fast, waitBlocks, false); err != nil {
 							Expect(err).ShouldNot(HaveOccurred())
 						}
 					})
@@ -414,7 +400,7 @@ var _ = Describe("contracts", func() {
 
 				It("should successfully return the address of RenExOrderbook", func() {
 					addrBook := loadAddressBook(network)
-					account, err := newAccount(network, keystorePaths[0], os.Getenv("passphrase"))
+					account, err := newAccount(network)
 					Expect(err).ShouldNot(HaveOccurred())
 					renExOrderbook, err := account.ReadAddress("RenExOrderbook")
 					Expect(renExOrderbook.String()).Should(Equal(addrBook["RenExOrderbook"].String()))
@@ -422,7 +408,7 @@ var _ = Describe("contracts", func() {
 
 				It("should successfully return the address of RenExSettlement", func() {
 					addrBook := loadAddressBook(network)
-					account, err := newAccount(network, keystorePaths[0], os.Getenv("passphrase"))
+					account, err := newAccount(network)
 					Expect(err).ShouldNot(HaveOccurred())
 					renExSettlement, err := account.ReadAddress("RenExSettlement")
 					Expect(renExSettlement.String()).Should(Equal(addrBook["RenExSettlement"].String()))
@@ -430,7 +416,7 @@ var _ = Describe("contracts", func() {
 
 				It("should successfully return the address of ERC20:WBTC", func() {
 					addrBook := loadAddressBook(network)
-					account, err := newAccount(network, keystorePaths[0], os.Getenv("passphrase"))
+					account, err := newAccount(network)
 					Expect(err).ShouldNot(HaveOccurred())
 					ERC20WBTC, err := account.ReadAddress("ERC20:WBTC")
 					Expect(ERC20WBTC.String()).Should(Equal(addrBook["ERC20:WBTC"].String()))
@@ -438,7 +424,7 @@ var _ = Describe("contracts", func() {
 
 				It("should successfully return the address of Swapper:ETH", func() {
 					addrBook := loadAddressBook(network)
-					account, err := newAccount(network, keystorePaths[0], os.Getenv("passphrase"))
+					account, err := newAccount(network)
 					Expect(err).ShouldNot(HaveOccurred())
 					SwapperETH, err := account.ReadAddress("Swapper:ETH")
 					Expect(SwapperETH.String()).Should(Equal(addrBook["Swapper:ETH"].String()))
@@ -446,7 +432,7 @@ var _ = Describe("contracts", func() {
 
 				It("should successfully return the address of Swapper:WBTC", func() {
 					addrBook := loadAddressBook(network)
-					account, err := newAccount(network, keystorePaths[0], os.Getenv("passphrase"))
+					account, err := newAccount(network)
 					Expect(err).ShouldNot(HaveOccurred())
 					SwapperWBTC, err := account.ReadAddress("Swapper:WBTC")
 					Expect(SwapperWBTC.String()).Should(Equal(addrBook["Swapper:WBTC"].String()))
@@ -455,7 +441,7 @@ var _ = Describe("contracts", func() {
 
 			Context("when signing messages", func() {
 				It("should successfully sign a message", func() {
-					account, err := newAccount(network, keystorePaths[0], os.Getenv("passphrase"))
+					account, err := newAccount(network)
 					Expect(err).ShouldNot(HaveOccurred())
 
 					msgHash := crypto.Keccak256([]byte("Message"))

@@ -1,4 +1,4 @@
-package beth_test
+package libeth_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestBeth(t *testing.T) {
+func TestLibETH(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Beth Test Suite")
+	RunSpecs(t, "LibETH Test Suite")
 }
