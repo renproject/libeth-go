@@ -1,4 +1,4 @@
-package beth
+package libeth
 
 import (
 	"bytes"

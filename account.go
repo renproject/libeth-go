@@ -1,4 +1,4 @@
-package beth
+package libeth
 
 import (
 	"context"
@@ -49,10 +49,9 @@ type TxExecutionSpeed uint8
 // TxExecutionSpeed values.
 const (
 	Nil = TxExecutionSpeed(iota)
-	SafeLow
-	Average
+	Slow
+	Standard
 	Fast
-	Fastest
 )
 
 // Account is an Ethereum external account that can submit write transactions
@@ -81,7 +80,7 @@ type Account interface {
 	ReadAddress(key string) (common.Address, error)
 
 	// Transfer sends the specified value of Eth to the given address.
-	Transfer(ctx context.Context, to common.Address, value, gasPrice *big.Int, confirmBlocks int64, sendAll bool) (*types.Transaction, error)
+	Transfer(ctx context.Context, to common.Address, value *big.Int, speed TxExecutionSpeed, confirmBlocks int64, sendAll bool) (*types.Transaction, error)
 
 	// Transact performs a write operation on the Ethereum blockchain. It will
 	// first conduct a preConditionCheck and if the check passes, it will
@@ -89,7 +88,7 @@ type Account interface {
 	// until the transaction passes and the postConditionCheck returns true.
 	// Transact will immediately stop retrying if an ErrReplaceUnderpriced is
 	// returned from ethereum.
-	Transact(ctx context.Context, preConditionCheck func() bool, f func(*bind.TransactOpts) (*types.Transaction, error), postConditionCheck func() bool, confirmBlocks int64) (*types.Transaction, error)
+	Transact(ctx context.Context, speed TxExecutionSpeed, preConditionCheck func() bool, f func(*bind.TransactOpts) (*types.Transaction, error), postConditionCheck func() bool, confirmBlocks int64) (*types.Transaction, error)
 
 	// Sign the given message with the account's private key.
 	Sign(msgHash []byte) ([]byte, error)
@@ -199,8 +198,7 @@ func (account *account) EthClient() *ethclient.Client {
 // the retry functionality. It stops retrying if tx is completed without any
 // error, or if given context times-out, or if ErrReplaceUnderpriced is
 // returned from Ethereum.
-func (account *account) Transact(ctx context.Context, preConditionCheck func() bool, f func(*bind.TransactOpts) (*types.Transaction, error), postConditionCheck func() bool, waitForBlocks int64) (*types.Transaction, error) {
-
+func (account *account) Transact(ctx context.Context, speed TxExecutionSpeed, preConditionCheck func() bool, f func(*bind.TransactOpts) (*types.Transaction, error), postConditionCheck func() bool, waitForBlocks int64) (*types.Transaction, error) {
 	// Do not proceed any further if the (not nil) pre-condition check fails
 	if preConditionCheck != nil && !preConditionCheck() {
 		return nil, ErrPreConditionCheckFailed
@@ -225,7 +223,7 @@ func (account *account) Transact(ctx context.Context, preConditionCheck func() b
 			account.mu.Lock()
 			defer account.mu.Unlock()
 
-			account.updateGasPrice(Fast)
+			account.updateGasPrice(speed)
 			// This will attempt to execute 'f' until no nonce error is
 			// returned or if ctx times out
 			innerCtx, innerCancel := context.WithTimeout(ctx, 10*time.Minute)
@@ -325,7 +323,7 @@ func (account *account) Transact(ctx context.Context, preConditionCheck func() b
 
 // Transfer transfers eth from the account to an ethereum address. If the value
 // is nil then it transfers all the balance to the `to` address.
-func (account *account) Transfer(ctx context.Context, to common.Address, value, gasPrice *big.Int, confirmBlocks int64, sendAll bool) (*types.Transaction, error) {
+func (account *account) Transfer(ctx context.Context, to common.Address, value *big.Int, speed TxExecutionSpeed, confirmBlocks int64, sendAll bool) (*types.Transaction, error) {
 	// Pre-condition check: Check if the account has enough balance
 	preConditionCheck := func() bool {
 		accountBalance, err := account.client.BalanceOf(ctx, account.Address())
@@ -335,16 +333,13 @@ func (account *account) Transfer(ctx context.Context, to common.Address, value, 
 	// Transaction: Transfer eth to address
 	f := func(transactOpts *bind.TransactOpts) (*types.Transaction, error) {
 		bound := bind.NewBoundContract(to, abi.ABI{}, nil, account.client.EthClient(), nil)
-		if gasPrice == nil {
-			gasPrice = transactOpts.GasPrice
-		}
 
 		if sendAll {
 			balance, err := account.BalanceAt(ctx, nil)
 			if err != nil {
 				return nil, err
 			}
-			value = new(big.Int).Sub(balance, new(big.Int).Mul(big.NewInt(21000), gasPrice))
+			value = new(big.Int).Sub(balance, new(big.Int).Mul(big.NewInt(21000), transactOpts.GasPrice))
 		}
 
 		transactor := &bind.TransactOpts{
@@ -352,13 +347,12 @@ func (account *account) Transfer(ctx context.Context, to common.Address, value, 
 			Signer:   transactOpts.Signer,
 			Value:    value,
 			GasLimit: 21000,
-			GasPrice: gasPrice,
 			Context:  ctx,
 		}
 		if transactOpts.Nonce != nil {
 			transactor.Nonce = big.NewInt(0).Set(transactOpts.Nonce)
 		}
-		if transactor.GasPrice == nil {
+		if transactOpts.GasPrice != nil {
 			transactor.GasPrice = big.NewInt(0).Set(transactOpts.GasPrice)
 		}
 
@@ -368,7 +362,7 @@ func (account *account) Transfer(ctx context.Context, to common.Address, value, 
 		}
 		return tx, nil
 	}
-	return account.Transact(ctx, preConditionCheck, f, nil, confirmBlocks)
+	return account.Transact(ctx, speed, preConditionCheck, f, nil, confirmBlocks)
 }
 
 // Sign the given message with the account's private key.
@@ -445,24 +439,21 @@ func SuggestedGasPrice(txSpeed TxExecutionSpeed) (*big.Int, error) {
 	}
 
 	data := struct {
-		SafeLow float64 `json:"safeLow"`
-		Average float64 `json:"average"`
-		Fast    float64 `json:"fast"`
-		Fastest float64 `json:"fastest"`
+		Slow     float64 `json:"average"`
+		Standard float64 `json:"fast"`
+		Fast     float64 `json:"fastest"`
 	}{}
 	if err = json.NewDecoder(res.Body).Decode(&data); err != nil {
 		return nil, fmt.Errorf("cannot decode response body from ethGasStation = %v", err)
 	}
 
 	switch txSpeed {
-	case SafeLow:
-		return big.NewInt(int64(data.SafeLow * math.Pow10(8))), nil
-	case Average:
-		return big.NewInt(int64(data.Average * math.Pow10(8))), nil
+	case Slow:
+		return big.NewInt(int64(data.Slow * math.Pow10(8))), nil
+	case Standard:
+		return big.NewInt(int64(data.Standard * math.Pow10(8))), nil
 	case Fast:
 		return big.NewInt(int64(data.Fast * math.Pow10(8))), nil
-	case Fastest:
-		return big.NewInt(int64(data.Fastest * math.Pow10(8))), nil
 	default:
 		return nil, fmt.Errorf("invalid speed tier: %v", txSpeed)
 	}
@@ -543,13 +534,12 @@ func (account *account) retryNonceTx(ctx context.Context, f func(*bind.TransactO
 // and update the account's transactOpts. This function expects the caller to
 // handle potential data race conditions (i.e. Locking of mutex prior to
 // calling this method)
-func (account *account) updateGasPrice(txSpeed TxExecutionSpeed) error {
+func (account *account) updateGasPrice(txSpeed TxExecutionSpeed) {
 	gasPrice, err := SuggestedGasPrice(txSpeed)
 	if err != nil {
-		return err
+		return
 	}
 	if gasPrice != nil {
 		account.transactOpts.GasPrice = gasPrice
 	}
-	return nil
 }

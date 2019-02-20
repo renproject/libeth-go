@@ -1,4 +1,4 @@
-package beth
+package libeth
 
 import (
 	"context"
@@ -17,9 +17,9 @@ type erc20 struct {
 type ERC20 interface {
 	BalanceOf(ctx context.Context, who common.Address) (*big.Int, error)
 	Allowance(ctx context.Context, owner, spender common.Address) (*big.Int, error)
-	Transfer(ctx context.Context, to common.Address, amount, gasPrice *big.Int, sendAll bool) (*types.Transaction, error)
-	Approve(ctx context.Context, spender common.Address, amount, gasPrice *big.Int) (*types.Transaction, error)
-	TransferFrom(ctx context.Context, from, to common.Address, amount, gasPrice *big.Int) (*types.Transaction, error)
+	Transfer(ctx context.Context, to common.Address, amount *big.Int, speed TxExecutionSpeed, sendAll bool) (*types.Transaction, error)
+	Approve(ctx context.Context, spender common.Address, amount *big.Int, speed TxExecutionSpeed) (*types.Transaction, error)
+	TransferFrom(ctx context.Context, from, to common.Address, amount *big.Int, speed TxExecutionSpeed) (*types.Transaction, error)
 }
 
 func (account *account) NewERC20(addressOrAlias string) (ERC20, error) {
@@ -63,7 +63,7 @@ func (erc20 *erc20) Allowance(ctx context.Context, owner, spender common.Address
 	})
 }
 
-func (erc20 *erc20) Transfer(ctx context.Context, to common.Address, amount, gasPrice *big.Int, sendAll bool) (*types.Transaction, error) {
+func (erc20 *erc20) Transfer(ctx context.Context, to common.Address, amount *big.Int, speed TxExecutionSpeed, sendAll bool) (*types.Transaction, error) {
 	if sendAll {
 		balance, err := erc20.BalanceOf(ctx, erc20.account.Address())
 		if err != nil {
@@ -73,11 +73,9 @@ func (erc20 *erc20) Transfer(ctx context.Context, to common.Address, amount, gas
 	}
 	return erc20.account.Transact(
 		ctx,
+		speed,
 		nil,
 		func(tops *bind.TransactOpts) (*types.Transaction, error) {
-			if gasPrice != nil {
-				tops.GasPrice = gasPrice
-			}
 			tx, err := erc20.cerc20.Transfer(tops, to, amount)
 			if err != nil {
 				return tx, err
@@ -89,14 +87,12 @@ func (erc20 *erc20) Transfer(ctx context.Context, to common.Address, amount, gas
 	)
 }
 
-func (erc20 *erc20) Approve(ctx context.Context, spender common.Address, amount, gasPrice *big.Int) (*types.Transaction, error) {
+func (erc20 *erc20) Approve(ctx context.Context, spender common.Address, amount *big.Int, speed TxExecutionSpeed) (*types.Transaction, error) {
 	return erc20.account.Transact(
 		ctx,
+		speed,
 		nil,
 		func(tops *bind.TransactOpts) (*types.Transaction, error) {
-			if gasPrice != nil {
-				tops.GasPrice = gasPrice
-			}
 			tx, err := erc20.cerc20.Approve(tops, spender, amount)
 			if err != nil {
 				return tx, err
@@ -108,14 +104,12 @@ func (erc20 *erc20) Approve(ctx context.Context, spender common.Address, amount,
 	)
 }
 
-func (erc20 *erc20) TransferFrom(ctx context.Context, from, to common.Address, amount, gasPrice *big.Int) (*types.Transaction, error) {
+func (erc20 *erc20) TransferFrom(ctx context.Context, from, to common.Address, amount *big.Int, speed TxExecutionSpeed) (*types.Transaction, error) {
 	return erc20.account.Transact(
 		ctx,
+		speed,
 		nil,
 		func(tops *bind.TransactOpts) (*types.Transaction, error) {
-			if gasPrice != nil {
-				tops.GasPrice = gasPrice
-			}
 			tx, err := erc20.cerc20.TransferFrom(tops, from, to, amount)
 			if err != nil {
 				return tx, err
