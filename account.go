@@ -80,7 +80,7 @@ type Account interface {
 	ReadAddress(key string) (common.Address, error)
 
 	// Transfer sends the specified value of Eth to the given address.
-	Transfer(ctx context.Context, to common.Address, value *big.Int, speed TxExecutionSpeed, confirmBlocks int64, sendAll bool) (*types.Transaction, error)
+	Transfer(ctx context.Context, to string, value *big.Int, speed TxExecutionSpeed, confirmBlocks int64, sendAll bool) (*types.Transaction, error)
 
 	// Transact performs a write operation on the Ethereum blockchain. It will
 	// first conduct a preConditionCheck and if the check passes, it will
@@ -115,8 +115,7 @@ type account struct {
 	callOpts     *bind.CallOpts
 	transactOpts *bind.TransactOpts
 
-	privateKey *ecdsa.PrivateKey
-
+	privateKey  *ecdsa.PrivateKey
 	addressBook AddressBook
 }
 
@@ -147,15 +146,12 @@ func NewAccount(url string, privateKey *ecdsa.PrivateKey) (Account, error) {
 
 	// Create account
 	account := &account{
-		mu:     new(sync.RWMutex),
-		client: client,
-
+		mu:           new(sync.RWMutex),
+		client:       client,
 		callOpts:     new(bind.CallOpts),
 		transactOpts: transactOpts,
-
-		privateKey: privateKey,
-
-		addressBook: DefaultAddressBook(netID.Int64()),
+		privateKey:   privateKey,
+		addressBook:  DefaultAddressBook(netID.Int64()),
 	}
 
 	return account, nil
@@ -323,7 +319,11 @@ func (account *account) Transact(ctx context.Context, speed TxExecutionSpeed, pr
 
 // Transfer transfers eth from the account to an ethereum address. If the value
 // is nil then it transfers all the balance to the `to` address.
-func (account *account) Transfer(ctx context.Context, to common.Address, value *big.Int, speed TxExecutionSpeed, confirmBlocks int64, sendAll bool) (*types.Transaction, error) {
+func (account *account) Transfer(ctx context.Context, to string, value *big.Int, speed TxExecutionSpeed, confirmBlocks int64, sendAll bool) (*types.Transaction, error) {
+	toAddress, err := account.client.Resolve(to)
+	if err != nil {
+		return nil, err
+	}
 	// Pre-condition check: Check if the account has enough balance
 	preConditionCheck := func() bool {
 		accountBalance, err := account.client.BalanceOf(ctx, account.Address())
@@ -332,7 +332,7 @@ func (account *account) Transfer(ctx context.Context, to common.Address, value *
 
 	// Transaction: Transfer eth to address
 	f := func(transactOpts *bind.TransactOpts) (*types.Transaction, error) {
-		bound := bind.NewBoundContract(to, abi.ABI{}, nil, account.client.EthClient(), nil)
+		bound := bind.NewBoundContract(toAddress, abi.ABI{}, nil, account.client.EthClient(), nil)
 
 		if sendAll {
 			balance, err := account.BalanceAt(ctx, nil)

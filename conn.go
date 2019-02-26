@@ -3,16 +3,19 @@ package libeth
 import (
 	"bytes"
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"math/big"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/contracts/ens"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
@@ -24,6 +27,7 @@ var ErrCannotConvertToBigInt = errors.New("cannot convert hex string to int: inv
 // Client will have a connection to an ethereum client (specified by the url)
 type Client struct {
 	ethClient *ethclient.Client
+	ens       *ens.ENS
 	addrBook  AddressBook
 	url       string
 }
@@ -41,8 +45,14 @@ func Connect(url string) (Client, error) {
 		return Client{}, err
 	}
 
+	ens, err := ensContract(netID.Int64(), ethClient)
+	if err != nil {
+		return Client{}, err
+	}
+
 	return Client{
 		ethClient: ethClient,
+		ens:       ens,
 		addrBook:  DefaultAddressBook(netID.Int64()),
 		url:       url,
 	}, nil
@@ -204,6 +214,54 @@ func (client *Client) CurrentBlockNumber(ctx context.Context) (*big.Int, error) 
 	}
 
 	return hexToBigInt(data.Result.Number)
+}
+
+func (client *Client) Resolve(addressOrENS string) (common.Address, error) {
+	if !client.IsValid(addressOrENS) {
+		return common.Address{}, fmt.Errorf("invalid address or alias: %s", addressOrENS)
+	}
+	if addr, err := client.resolveENS(addressOrENS); err == nil {
+		return addr, nil
+	}
+	return common.HexToAddress(addressOrENS), nil
+}
+
+func (client *Client) IsValid(addressOrENS string) bool {
+	if len(addressOrENS) == 42 && addressOrENS[:2] == "0x" {
+		_, err := hex.DecodeString(addressOrENS[2:])
+		return err == nil
+	}
+
+	if len(addressOrENS) == 40 {
+		_, err := hex.DecodeString(addressOrENS)
+		return err == nil
+	}
+
+	if nodes := strings.Split(addressOrENS, "."); len(nodes) >= 2 {
+		if nodes[len(nodes)-1] != "eth" {
+			return false
+		}
+		_, err := client.resolveENS(addressOrENS)
+		return err == nil
+	}
+	return false
+}
+
+func (client *Client) resolveENS(ensName string) (common.Address, error) {
+	if client.ens == nil {
+		return common.Address{}, fmt.Errorf("ens does not exist on the current network")
+	}
+	return client.ens.Addr(ensName)
+}
+
+func ensContract(network int64, client *ethclient.Client) (*ens.ENS, error) {
+	switch network {
+	case 1:
+		return ens.NewENS(&bind.TransactOpts{}, ens.MainNetAddress, bind.ContractBackend(client))
+	case 3:
+		return ens.NewENS(&bind.TransactOpts{}, ens.TestNetAddress, bind.ContractBackend(client))
+	}
+	return nil, nil
 }
 
 // hexToBigInt will convert a hex value in string format to the corresponding

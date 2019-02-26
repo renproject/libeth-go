@@ -455,6 +455,22 @@ var _ = Describe("contracts", func() {
 					Expect(signerAddress.String()).Should(Equal(account.Address().String()))
 				})
 			})
+
+			Context("when resolving ens names", func() {
+				FIt("should successfully resolve an ens name", func() {
+					client, err := libeth.Connect("https://mainnet.infura.io")
+					Expect(err).ShouldNot(HaveOccurred())
+					_, err = client.Resolve("republicprotocol.eth")
+					Expect(err).ShouldNot(HaveOccurred())
+				})
+
+				FIt("should err when trying to resolve a non existent ens name", func() {
+					client, err := libeth.Connect("https://mainnet.infura.io")
+					Expect(err).ShouldNot(HaveOccurred())
+					_, err = client.Resolve("google.eth")
+					Expect(err).Should(HaveOccurred())
+				})
+			})
 		}
 	}
 })
