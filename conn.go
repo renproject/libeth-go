@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/contracts/ens"
@@ -30,6 +32,7 @@ type Client struct {
 	ens       *ens.ENS
 	addrBook  AddressBook
 	url       string
+	apiKey    string
 }
 
 // Connect to an infura network (Supported networks: mainnet and kovan).
@@ -55,6 +58,7 @@ func Connect(url string) (Client, error) {
 		ens:       ens,
 		addrBook:  DefaultAddressBook(netID.Int64()),
 		url:       url,
+		apiKey:    "R8F2CVXTVSCIDD2IQ2ZQP9P6VZADUWHDHN",
 	}, nil
 }
 
@@ -110,6 +114,47 @@ func (client *Client) Get(ctx context.Context, f func() error) (err error) {
 		}
 
 		// Increase delay for next round but saturate at 30s
+		sleepDurationMs = time.Duration(float64(sleepDurationMs) * 1.6)
+		if sleepDurationMs > 30000 {
+			sleepDurationMs = 30000
+		}
+	}
+}
+
+func (client Client) Call(ctx context.Context, address, fnName string, params ...interface{}) ([]interface{}, error) {
+	net, err := client.ethClient.NetworkID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	contractAbi, err := getABI(net.Int64(), address, client.apiKey)
+	if err != nil {
+		return nil, err
+	}
+	parsed, err := abi.JSON(strings.NewReader(contractAbi))
+	if err != nil {
+		return nil, err
+	}
+	data, err := parsed.Pack(fnName, params...)
+	if err != nil {
+		return nil, err
+	}
+	contractAddr := common.HexToAddress(address)
+	sleepDurationMs := time.Duration(1000)
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-time.After(sleepDurationMs * time.Millisecond):
+			resp, err := client.ethClient.CallContract(ctx, ethereum.CallMsg{To: &contractAddr, Data: data}, nil)
+			if err != nil {
+				return nil, err
+			}
+
+			if len(resp) != 0 {
+				return parsed.Methods[fnName].Outputs.UnpackValues(resp)
+			}
+		}
 		sleepDurationMs = time.Duration(float64(sleepDurationMs) * 1.6)
 		if sleepDurationMs > 30000 {
 			sleepDurationMs = 30000
@@ -336,4 +381,30 @@ func sendInfuraRequest(ctx context.Context, url string, request string) (body []
 		}
 	}
 	return
+}
+
+func getABI(net int64, address, apiKey string) (string, error) {
+	network := ""
+	switch net {
+	case 1:
+		network = "api"
+	case 3:
+		network = "api-ropsten"
+	case 42:
+		network = "api-kovan"
+	default:
+		return "", fmt.Errorf("unsupported network on etherscan")
+	}
+
+	value := struct {
+		ABI string `json:"result"`
+	}{}
+
+	resp, err := http.Get(fmt.Sprintf("https://%s.etherscan.io/api?module=contract&action=getabi&address=%s&apikey=%s", network, address, apiKey))
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	return value.ABI, json.NewDecoder(resp.Body).Decode(&value)
 }

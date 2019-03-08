@@ -457,18 +457,29 @@ var _ = Describe("contracts", func() {
 			})
 
 			Context("when resolving ens names", func() {
-				FIt("should successfully resolve an ens name", func() {
+				It("should successfully resolve an ens name", func() {
 					client, err := libeth.Connect("https://mainnet.infura.io")
 					Expect(err).ShouldNot(HaveOccurred())
 					_, err = client.Resolve("republicprotocol.eth")
 					Expect(err).ShouldNot(HaveOccurred())
 				})
 
-				FIt("should err when trying to resolve a non existent ens name", func() {
+				It("should err when trying to resolve a non existent ens name", func() {
 					client, err := libeth.Connect("https://mainnet.infura.io")
 					Expect(err).ShouldNot(HaveOccurred())
 					_, err = client.Resolve("google.eth")
 					Expect(err).Should(HaveOccurred())
+				})
+			})
+
+			Context("when calling a function on a contract", func() {
+				It("should successfully return the result", func() {
+					client, err := libeth.Connect("https://mainnet.infura.io")
+					Expect(err).ShouldNot(HaveOccurred())
+					res, err := client.Call(context.Background(), "0x408e41876cccdc0f92210600ef50372656052a38", "balanceOf", common.HexToAddress("0x408e41876cccdc0f92210600ef50372656052a38"))
+					Expect(err).ShouldNot(HaveOccurred())
+					_, ok := res[0].(*big.Int)
+					Expect(ok).Should(BeTrue())
 				})
 			})
 		}
