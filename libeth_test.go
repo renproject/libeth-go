@@ -30,7 +30,13 @@ var _ = Describe("contracts", func() {
 		if err != nil {
 			return nil, err
 		}
-		return libeth.NewAccount(fmt.Sprintf("https://%s.infura.io", network), key)
+
+		client, err := libeth.NewInfuraClient(network, os.Getenv("INFURA_KEY"))
+		if err != nil {
+			return nil, err
+		}
+
+		return libeth.NewAccount(client, key)
 	}
 
 	libethTest := func(network string, account libeth.Account) (*test.Bethtest, error) {
@@ -257,7 +263,7 @@ var _ = Describe("contracts", func() {
 
 	rand.Seed(time.Now().Unix())
 	testedNetworks := []string{"ropsten", "kovan"}
-	addresses := []string{"3a5e0b1158ca9ce861a80c3049d347a3f1825db0", "6b9b3e47c4c73db44f6a34064b21da8c62692a8c"}
+	addresses := []string{"0x5Ea5F67cC958023F2da2ea92231d358F2a3BbA47", "0xaAC4B896eC41e2672D2e1E5fbDe24119f4937E59"}
 
 	tableParallelism := []struct {
 		n, waitBlocks int64
@@ -379,17 +385,12 @@ var _ = Describe("contracts", func() {
 					ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 					defer cancel()
 
-					toAddrs := []common.Address{}
-					for i := 0; i < 2; i++ {
-						toAddrs = append(toAddrs, common.HexToAddress(addresses[i]))
-					}
-
-					co.ParForAll(toAddrs, func(i int) {
+					co.ParForAll(addresses, func(i int) {
 						account, err := newAccount(network)
 						Expect(err).ShouldNot(HaveOccurred())
-						// Transfer 1 Eth to the other account's address
-						value, _ := big.NewFloat(1 * math.Pow10(18)).Int(nil)
-						if _, err := account.Transfer(ctx, toAddrs[i], value, libeth.Fast, waitBlocks, false); err != nil {
+						// Transfer 1 Gwei to itself
+						if _, err := account.Transfer(ctx, common.HexToAddress(addresses[i]), big.NewInt(int64(math.Pow10(9))), libeth.Fast, waitBlocks, false); err != nil {
+							fmt.Println(err)
 							Expect(err).ShouldNot(HaveOccurred())
 						}
 					})
@@ -458,14 +459,14 @@ var _ = Describe("contracts", func() {
 
 			Context("when resolving ens names", func() {
 				It("should successfully resolve an ens name", func() {
-					client, err := libeth.Connect("https://mainnet.infura.io")
+					client, err := libeth.NewInfuraClient("mainnet", os.Getenv("INFURA_KEY"))
 					Expect(err).ShouldNot(HaveOccurred())
 					_, err = client.Resolve("republicprotocol.eth")
 					Expect(err).ShouldNot(HaveOccurred())
 				})
 
 				It("should err when trying to resolve a non existent ens name", func() {
-					client, err := libeth.Connect("https://mainnet.infura.io")
+					client, err := libeth.NewInfuraClient("mainnet", os.Getenv("INFURA_KEY"))
 					Expect(err).ShouldNot(HaveOccurred())
 					_, err = client.Resolve("google.eth")
 					Expect(err).Should(HaveOccurred())
@@ -474,7 +475,7 @@ var _ = Describe("contracts", func() {
 
 			Context("when calling a function on a contract", func() {
 				It("should successfully return the result", func() {
-					client, err := libeth.Connect("https://mainnet.infura.io")
+					client, err := libeth.NewInfuraClient("mainnet", os.Getenv("INFURA_KEY"))
 					Expect(err).ShouldNot(HaveOccurred())
 					res, err := client.Call(context.Background(), "0x408e41876cccdc0f92210600ef50372656052a38", "balanceOf", common.HexToAddress("0x408e41876cccdc0f92210600ef50372656052a38"))
 					Expect(err).ShouldNot(HaveOccurred())

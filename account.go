@@ -121,15 +121,9 @@ type account struct {
 
 // NewAccount returns a user account for the provided private key which is
 // connected to an Ethereum client.
-func NewAccount(url string, privateKey *ecdsa.PrivateKey) (Account, error) {
+func NewAccount(client Client, privateKey *ecdsa.PrivateKey) (Account, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
-
-	// Connect to client
-	client, err := Connect(url)
-	if err != nil {
-		return nil, err
-	}
 
 	// Setup transact opts
 	transactOpts := bind.NewKeyedTransactor(privateKey)
@@ -270,7 +264,7 @@ func (account *account) Transact(ctx context.Context, speed TxExecutionSpeed, pr
 		// post-condition failed
 		select {
 		case <-ctx.Done():
-			return nil, ErrPostConditionCheckFailed
+			return nil, ctx.Err()
 		case <-time.After(sleepDurationMs * time.Millisecond):
 		}
 
