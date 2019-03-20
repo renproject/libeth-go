@@ -156,6 +156,12 @@ func (account *account) Address() common.Address {
 	return account.transactOpts.From
 }
 
+// FormatTransactionView returns the formatted string with the URL at which
+// the transaction can be viewed.
+func (account *account) FormatTransactionView(msg, txHash string) (string, error) {
+	return account.client.FormatTransactionView(msg, txHash)
+}
+
 // BalanceAt returns the wei balance of the account. The block number can be nil,
 // in which case the balance is taken from the latest known block.
 func (account *account) BalanceAt(ctx context.Context, blockNumber *big.Int) (*big.Int, error) {
@@ -388,27 +394,6 @@ func (account *account) ResetToPendingNonce(ctx context.Context, coolDown time.D
 	}
 	account.transactOpts.Nonce = big.NewInt(int64(nonce))
 	return nil
-}
-
-// FormatTransactionView returns the formatted string with the URL at which the
-// transaction can be viewed.
-func (account *account) FormatTransactionView(msg, txHash string) (string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
-	netID, err := account.client.ethClient.NetworkID(ctx)
-	if err != nil {
-		return "", err
-	}
-	switch netID.Int64() {
-	case 1:
-		return fmt.Sprintf("%s, the transaction can be viewed at https://etherscan.io/tx/%s", msg, txHash), nil
-	case 3:
-		return fmt.Sprintf("%s, the transaction can be viewed at https://ropsten.etherscan.io/tx/%s", msg, txHash), nil
-	case 42:
-		return fmt.Sprintf("%s, the transaction can be viewed at https://kovan.etherscan.io/tx/%s", msg, txHash), nil
-	default:
-		return "", fmt.Errorf("unknown network id : %d", netID.Int64())
-	}
 }
 
 // SuggestedGasPrice returns the gas price that ethGasStation recommends for

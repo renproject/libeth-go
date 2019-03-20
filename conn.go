@@ -72,6 +72,47 @@ func (client *Client) WriteAddress(key string, address common.Address) {
 	client.addrBook[key] = address
 }
 
+// FormatTransactionView returns the formatted string with the URL at which the
+// transaction can be viewed.
+func (client *Client) FormatTransactionView(msg, txHash string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+	netID, err := client.ethClient.NetworkID(ctx)
+	if err != nil {
+		return "", err
+	}
+	switch netID.Int64() {
+	case 1:
+		return fmt.Sprintf("%s, the transaction can be viewed at https://etherscan.io/tx/%s", msg, txHash), nil
+	case 3:
+		return fmt.Sprintf("%s, the transaction can be viewed at https://ropsten.etherscan.io/tx/%s", msg, txHash), nil
+	case 42:
+		return fmt.Sprintf("%s, the transaction can be viewed at https://kovan.etherscan.io/tx/%s", msg, txHash), nil
+	default:
+		return "", fmt.Errorf("unknown network id : %d", netID.Int64())
+	}
+}
+
+// Network returns the network of the underlying client.
+func (client *Client) Network() (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+	netID, err := client.ethClient.NetworkID(ctx)
+	if err != nil {
+		return "", err
+	}
+	switch netID.Int64() {
+	case 1:
+		return "mainnet", nil
+	case 3:
+		return "ropsten", nil
+	case 42:
+		return "kovan", nil
+	default:
+		return "", fmt.Errorf("unknown network id : %d", netID.Int64())
+	}
+}
+
 // ReadAddress from the address book, return an error if the address does not
 // exist
 func (client *Client) ReadAddress(key string) (common.Address, error) {
