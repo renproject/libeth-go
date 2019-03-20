@@ -35,6 +35,11 @@ type Client struct {
 	apiKey    string
 }
 
+// NewInfuraClient creates a new infura client
+func NewInfuraClient(network, apiKey string) (Client, error) {
+	return Connect(fmt.Sprintf("https://%s.infura.io/v3/%s", network, apiKey))
+}
+
 // Connect to an infura network (Supported networks: mainnet and kovan).
 func Connect(url string) (Client, error) {
 
@@ -121,6 +126,7 @@ func (client *Client) Get(ctx context.Context, f func() error) (err error) {
 	}
 }
 
+// Call a function on a contract with the given parameters
 func (client Client) Call(ctx context.Context, address, fnName string, params ...interface{}) ([]interface{}, error) {
 	net, err := client.ethClient.NetworkID(ctx)
 	if err != nil {
@@ -147,13 +153,10 @@ func (client Client) Call(ctx context.Context, address, fnName string, params ..
 			return nil, ctx.Err()
 		case <-time.After(sleepDurationMs * time.Millisecond):
 			resp, err := client.ethClient.CallContract(ctx, ethereum.CallMsg{To: &contractAddr, Data: data}, nil)
-			if err != nil {
-				return nil, err
+			if err != nil || len(resp) == 0 {
+				break
 			}
-
-			if len(resp) != 0 {
-				return parsed.Methods[fnName].Outputs.UnpackValues(resp)
-			}
+			return parsed.Methods[fnName].Outputs.UnpackValues(resp)
 		}
 		sleepDurationMs = time.Duration(float64(sleepDurationMs) * 1.6)
 		if sleepDurationMs > 30000 {
@@ -261,6 +264,7 @@ func (client *Client) CurrentBlockNumber(ctx context.Context) (*big.Int, error) 
 	return hexToBigInt(data.Result.Number)
 }
 
+// Resolve an ens address
 func (client *Client) Resolve(addressOrENS string) (common.Address, error) {
 	if !client.IsValid(addressOrENS) {
 		return common.Address{}, fmt.Errorf("invalid address or alias: %s", addressOrENS)
@@ -271,6 +275,7 @@ func (client *Client) Resolve(addressOrENS string) (common.Address, error) {
 	return common.HexToAddress(addressOrENS), nil
 }
 
+// IsValid checks if the address or ens name is valid
 func (client *Client) IsValid(addressOrENS string) bool {
 	if len(addressOrENS) == 42 && addressOrENS[:2] == "0x" {
 		_, err := hex.DecodeString(addressOrENS[2:])
