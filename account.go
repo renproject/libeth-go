@@ -202,7 +202,7 @@ func (account *account) Transact(ctx context.Context, speed TxExecutionSpeed, pr
 
 	sleepDurationMs := time.Duration(1000)
 	var txHash common.Hash
-	var transction *types.Transaction
+	var transaction *types.Transaction
 
 	// Keep retrying 'f' until the post-condition check passes or the context
 	// times out.
@@ -234,7 +234,7 @@ func (account *account) Transact(ctx context.Context, speed TxExecutionSpeed, pr
 				return err
 			}
 			txHash = tx.Hash()
-			transction = tx
+			transaction = tx
 
 			// Transaction did not error, proceed to post-condition checks
 			return nil
@@ -314,7 +314,7 @@ func (account *account) Transact(ctx context.Context, speed TxExecutionSpeed, pr
 			continue
 		}
 	}
-	return transction, nil
+	return transaction, nil
 }
 
 // Transfer transfers eth from the account to an ethereum address. If the value
