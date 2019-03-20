@@ -383,9 +383,10 @@ var _ = Describe("contracts", func() {
 						toAddrs = append(toAddrs, common.HexToAddress(addresses[i]))
 					}
 
+					account, err := newAccount(network)
+					Expect(err).ShouldNot(HaveOccurred())
+
 					co.ParForAll(toAddrs, func(i int) {
-						account, err := newAccount(network)
-						Expect(err).ShouldNot(HaveOccurred())
 						// Transfer 1 Eth to the other account's address
 						value, _ := big.NewFloat(1 * math.Pow10(18)).Int(nil)
 						if _, err := account.Transfer(ctx, toAddrs[i], value, libeth.Fast, waitBlocks, false); err != nil {
