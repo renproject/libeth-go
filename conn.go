@@ -28,11 +28,30 @@ var ErrCannotConvertToBigInt = errors.New("cannot convert hex string to int: inv
 
 // Client will have a connection to an ethereum client (specified by the url)
 type Client struct {
-	ethClient *ethclient.Client
-	ens       *ens.ENS
-	addrBook  AddressBook
-	url       string
-	apiKey    string
+	ethClient   *ethclient.Client
+	ethWSClient *ethclient.Client
+	ens         *ens.ENS
+	addrBook    AddressBook
+	url         string
+	apiKey      string
+}
+
+// NewMercuryClient creates a new infura client
+func NewMercuryClient(network, tag string) (Client, error) {
+	if tag != "" {
+		tag = fmt.Sprintf("?tag=%s", tag)
+	}
+	network = strings.ToLower(network)
+	switch network {
+	case "mainnet":
+		return Connect(fmt.Sprintf("https://ren-mercury.herokuapp.com/eth%s", tag))
+	case "kovan":
+		return Connect(fmt.Sprintf("https://ren-mercury.herokuapp.com/eth-kovan%s", tag))
+	case "ropsten":
+		return Connect(fmt.Sprintf("https://ren-mercury.herokuapp.com/eth-ropsten%s", tag))
+	default:
+		return Client{}, fmt.Errorf("unsupported network: %s", network)
+	}
 }
 
 // NewInfuraClient creates a new infura client
@@ -40,6 +59,31 @@ func NewInfuraClient(network, apiKey string) (Client, error) {
 	return Connect(fmt.Sprintf("https://%s.infura.io/v3/%s", network, apiKey))
 }
 
+// NewFullInfuraClient creates a new infura client
+func NewFullInfuraClient(network, apiKey string) (Client, error) {
+	return NewClient(
+		fmt.Sprintf("https://%s.infura.io/v3/%s", network, apiKey),
+		fmt.Sprintf("wss://%s.infura.io/ws/v3/%s", network, apiKey),
+	)
+}
+
+// NewClient creates a new client
+func NewClient(URL, wsURL string) (Client, error) {
+	client, err := Connect(URL)
+	if err != nil {
+		return Client{}, err
+	}
+
+	wsClient, err := ethclient.Dial(wsURL)
+	if err != nil {
+		return Client{}, err
+	}
+
+	client.ethWSClient = wsClient
+	return client, nil
+}
+
+// Deprecated
 // Connect to an infura network (Supported networks: mainnet and kovan).
 func Connect(url string) (Client, error) {
 
@@ -218,6 +262,11 @@ func (client *Client) BalanceOf(ctx context.Context, addr common.Address) (val *
 // EthClient returns the ethereum client connection.
 func (client *Client) EthClient() *ethclient.Client {
 	return client.ethClient
+}
+
+// EthWSClient returns the ethereum ws client connection.
+func (client *Client) EthWSClient() *ethclient.Client {
+	return client.ethWSClient
 }
 
 // TxBlockNumber retrieves tx's block number using the tx hash.
