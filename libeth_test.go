@@ -30,7 +30,7 @@ var _ = Describe("contracts", func() {
 			return nil, err
 		}
 
-		client, err := libeth.NewInfuraClient(network, os.Getenv("INFURA_KEY"))
+		client, err := libeth.NewMercuryClient(network, "")
 		if err != nil {
 			return nil, err
 		}
@@ -463,14 +463,14 @@ var _ = Describe("contracts", func() {
 
 			Context("when resolving ens names", func() {
 				It("should successfully resolve an ens name", func() {
-					client, err := libeth.NewInfuraClient("mainnet", os.Getenv("INFURA_KEY"))
+					client, err := libeth.NewMercuryClient("mainnet", "")
 					Expect(err).ShouldNot(HaveOccurred())
 					_, err = client.Resolve("republicprotocol.eth")
 					Expect(err).ShouldNot(HaveOccurred())
 				})
 
 				It("should err when trying to resolve a non existent ens name", func() {
-					client, err := libeth.NewInfuraClient("mainnet", os.Getenv("INFURA_KEY"))
+					client, err := libeth.NewMercuryClient("mainnet", "")
 					Expect(err).ShouldNot(HaveOccurred())
 					_, err = client.Resolve("google.eth")
 					Expect(err).Should(HaveOccurred())
@@ -479,7 +479,7 @@ var _ = Describe("contracts", func() {
 
 			Context("when calling a function on a contract", func() {
 				It("should successfully return the result", func() {
-					client, err := libeth.NewInfuraClient("mainnet", os.Getenv("INFURA_KEY"))
+					client, err := libeth.NewMercuryClient("mainnet", "")
 					Expect(err).ShouldNot(HaveOccurred())
 					res, err := client.Call(context.Background(), "0x408e41876cccdc0f92210600ef50372656052a38", "balanceOf", common.HexToAddress("0x408e41876cccdc0f92210600ef50372656052a38"))
 					Expect(err).ShouldNot(HaveOccurred())
