@@ -250,6 +250,47 @@ func (client Client) Call(ctx context.Context, address, fnName string, params ..
 	}
 }
 
+// Query a function on a contract with the given parameters
+func (client Client) Query(ctx context.Context, address, fnName string, params ...[]byte) ([]interface{}, error) {
+	net, err := client.ethClient.NetworkID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	contractAbi, err := getABI(net.Int64(), address, client.apiKey)
+	if err != nil {
+		return nil, err
+	}
+	parsed, err := abi.JSON(strings.NewReader(contractAbi))
+	if err != nil {
+		return nil, err
+	}
+
+	arguments := []byte{}
+	for _, param := range params {
+		arguments = append(arguments, padParam(param)...)
+	}
+
+	data := append(parsed.Methods[fnName].Id(), arguments...)
+	contractAddr := common.HexToAddress(address)
+	sleepDurationMs := time.Duration(1000)
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-time.After(sleepDurationMs * time.Millisecond):
+			resp, err := client.ethClient.CallContract(ctx, ethereum.CallMsg{To: &contractAddr, Data: data}, nil)
+			if err != nil || len(resp) == 0 {
+				break
+			}
+			return parsed.Methods[fnName].Outputs.UnpackValues(resp)
+		}
+		sleepDurationMs = time.Duration(float64(sleepDurationMs) * 1.6)
+		if sleepDurationMs > 30000 {
+			sleepDurationMs = 30000
+		}
+	}
+}
+
 // BalanceOf returns the ethereum balance of the addr passed.
 func (client *Client) BalanceOf(ctx context.Context, addr common.Address) (val *big.Int, err error) {
 	err = client.Get(ctx, func() (err error) {
@@ -502,4 +543,13 @@ func getABI(net int64, address, apiKey string) (string, error) {
 	defer resp.Body.Close()
 
 	return value.ABI, json.NewDecoder(resp.Body).Decode(&value)
+}
+
+func padParam(param []byte) []byte {
+	paddedParam := [32]byte{}
+	if len(param) > 32 {
+		return param[:32]
+	}
+	copy(paddedParam[:], param)
+	return paddedParam[:]
 }

@@ -487,6 +487,17 @@ var _ = Describe("contracts", func() {
 					Expect(ok).Should(BeTrue())
 				})
 			})
+
+			Context("when querying a function on a contract", func() {
+				FIt("should successfully return the result", func() {
+					client, err := libeth.NewMercuryClient("mainnet", "")
+					Expect(err).ShouldNot(HaveOccurred())
+					res, err := client.Query(context.Background(), "0x408e41876cccdc0f92210600ef50372656052a38", "balanceOf", common.HexToAddress("0x408e41876cccdc0f92210600ef50372656052a38").Bytes())
+					Expect(err).ShouldNot(HaveOccurred())
+					_, ok := res[0].(*big.Int)
+					Expect(ok).Should(BeTrue())
+				})
+			})
 		}
 	}
 })
