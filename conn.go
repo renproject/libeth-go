@@ -32,6 +32,7 @@ type Client struct {
 	ethWSClient *ethclient.Client
 	ens         *ens.ENS
 	addrBook    AddressBook
+	contracts   Contracts
 	url         string
 	apiKey      string
 }
@@ -106,6 +107,7 @@ func Connect(url string) (Client, error) {
 		ethClient: ethClient,
 		ens:       ens,
 		addrBook:  DefaultAddressBook(netID.Int64()),
+		contracts: DefaultContracts(netID.Int64()),
 		url:       url,
 		apiKey:    "R8F2CVXTVSCIDD2IQ2ZQP9P6VZADUWHDHN",
 	}, nil
@@ -256,10 +258,15 @@ func (client Client) Query(ctx context.Context, address, fnName string, params .
 	if err != nil {
 		return nil, err
 	}
-	contractAbi, err := getABI(net.Int64(), address, client.apiKey)
-	if err != nil {
-		return nil, err
+	contractAddr := common.HexToAddress(address)
+	contractAbi, ok := ContractABIs[client.contracts[contractAddr]]
+	if !ok {
+		contractAbi, err = getABI(net.Int64(), address, client.apiKey)
+		if err != nil {
+			return nil, err
+		}
 	}
+
 	parsed, err := abi.JSON(strings.NewReader(contractAbi))
 	if err != nil {
 		return nil, err
@@ -271,7 +278,7 @@ func (client Client) Query(ctx context.Context, address, fnName string, params .
 	}
 
 	data := append(parsed.Methods[fnName].Id(), arguments...)
-	contractAddr := common.HexToAddress(address)
+
 	sleepDurationMs := time.Duration(1000)
 	for {
 		select {

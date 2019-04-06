@@ -2,6 +2,7 @@ package libeth_test
 
 import (
 	"context"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"math"
@@ -489,12 +490,25 @@ var _ = Describe("contracts", func() {
 			})
 
 			Context("when querying a function on a contract", func() {
-				FIt("should successfully return the result", func() {
+				It("should successfully return the result", func() {
 					client, err := libeth.NewMercuryClient("mainnet", "")
 					Expect(err).ShouldNot(HaveOccurred())
 					res, err := client.Query(context.Background(), "0x408e41876cccdc0f92210600ef50372656052a38", "balanceOf", common.HexToAddress("0x408e41876cccdc0f92210600ef50372656052a38").Bytes())
 					Expect(err).ShouldNot(HaveOccurred())
 					_, ok := res[0].(*big.Int)
+					Expect(ok).Should(BeTrue())
+				})
+
+				FIt("should successfully return the result", func() {
+					to, err := hex.DecodeString("dc3e14c22f311b78c727605caf8e39e6a03fb345")
+					Expect(err).ShouldNot(HaveOccurred())
+					val, err := hex.DecodeString("4e20")
+					Expect(err).ShouldNot(HaveOccurred())
+					client, err := libeth.NewMercuryClient("kovan", "")
+					Expect(err).ShouldNot(HaveOccurred())
+					res, err := client.Query(context.Background(), "0x7E39810DB7c614c6208b4ea1d20A05Abec02d795", "commitment", to, val)
+					Expect(err).ShouldNot(HaveOccurred())
+					_, ok := res[0].([32]byte)
 					Expect(ok).Should(BeTrue())
 				})
 			})
