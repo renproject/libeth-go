@@ -228,10 +228,13 @@ func (client Client) Call(ctx context.Context, address, fnName string, params ..
 	if err != nil {
 		return nil, err
 	}
+
 	data, err := parsed.Pack(fnName, params...)
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("Data in Call: ", hex.EncodeToString(data))
+
 	contractAddr := common.HexToAddress(address)
 	sleepDurationMs := time.Duration(1000)
 	for {
@@ -278,6 +281,7 @@ func (client Client) Query(ctx context.Context, address, fnName string, params .
 	}
 
 	data := append(parsed.Methods[fnName].Id(), arguments...)
+	fmt.Println("Data in Query: ", hex.EncodeToString(data))
 
 	sleepDurationMs := time.Duration(1000)
 	for {
@@ -553,10 +557,9 @@ func getABI(net int64, address, apiKey string) (string, error) {
 }
 
 func padParam(param []byte) []byte {
-	paddedParam := [32]byte{}
 	if len(param) > 32 {
 		return param[:32]
 	}
-	copy(paddedParam[:], param)
-	return paddedParam[:]
+	padding := make([]byte, 32-len(param))
+	return append(padding, param...)
 }
