@@ -500,16 +500,35 @@ var _ = Describe("contracts", func() {
 				})
 
 				FIt("should successfully return the result", func() {
-					to, err := hex.DecodeString("dc3e14c22f311b78c727605caf8e39e6a03fb345")
+					to := common.HexToAddress("0xb711f28edb3eff09902b5fb952d2cd40a09332fe")
+					val := big.NewInt(20000)
+					hash, err := hex.DecodeString("b6248da5a7cce134a3f365d62ee80fe938be10926ba48e270a621a351bf40a8f")
+					Expect(err).ShouldNot(HaveOccurred())
+					hash32 := [32]byte{}
+					copy(hash32[:], hash)
+					client, err := libeth.NewMercuryClient("kovan", "")
+					Expect(err).ShouldNot(HaveOccurred())
+					res, err := client.Call(context.Background(), "0xe25c8a69DAcbFb533d013CD4933dC03308E47B0a", "commitment", to, val, hash32)
+					Expect(err).ShouldNot(HaveOccurred())
+					commitHash, ok := res[0].([32]byte)
+					Expect(ok).Should(BeTrue())
+					fmt.Println(hex.EncodeToString(commitHash[:]))
+				})
+
+				FIt("should successfully return the result", func() {
+					to, err := hex.DecodeString("b711f28edb3eff09902b5fb952d2cd40a09332fe")
 					Expect(err).ShouldNot(HaveOccurred())
 					val, err := hex.DecodeString("4e20")
 					Expect(err).ShouldNot(HaveOccurred())
+					hash, err := hex.DecodeString("b6248da5a7cce134a3f365d62ee80fe938be10926ba48e270a621a351bf40a8f")
+					Expect(err).ShouldNot(HaveOccurred())
 					client, err := libeth.NewMercuryClient("kovan", "")
 					Expect(err).ShouldNot(HaveOccurred())
-					res, err := client.Query(context.Background(), "0x7E39810DB7c614c6208b4ea1d20A05Abec02d795", "commitment", to, val)
+					res, err := client.Query(context.Background(), "0xe25c8a69DAcbFb533d013CD4933dC03308E47B0a", "commitment", to, val, hash)
 					Expect(err).ShouldNot(HaveOccurred())
-					_, ok := res[0].([32]byte)
+					commitHash, ok := res[0].([32]byte)
 					Expect(ok).Should(BeTrue())
+					fmt.Println(hex.EncodeToString(commitHash[:]))
 				})
 			})
 		}
