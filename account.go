@@ -362,8 +362,30 @@ func (account *account) Transfer(ctx context.Context, to common.Address, value *
 	return account.Transact(ctx, speed, preConditionCheck, f, nil, confirmBlocks)
 }
 
-func (account *account) ContractTransact(contractAddress common.Address, input []byte) (*types.Transaction, error) {
-	var err error
+func (account *account) ContractTransact(ctx context.Context, contractAddress common.Address, fnName string, params ...[]byte) (*types.Transaction, error) {
+	net, err := account.client.ethClient.NetworkID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	contractAbi, ok := ContractABIs[account.client.contracts[contractAddress]]
+	if !ok {
+		contractAbi, err = getABI(net.Int64(), contractAddress.String(), account.client.apiKey)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	parsed, err := abi.JSON(strings.NewReader(contractAbi))
+	if err != nil {
+		return nil, err
+	}
+
+	arguments := []byte{}
+	for _, param := range params {
+		arguments = append(arguments, padParam(param)...)
+	}
+	data := append(parsed.Methods[fnName].Id(), arguments...)
 	opts := account.transactOpts
 
 	// Ensure a valid value field and resolve the account nonce
@@ -398,7 +420,7 @@ func (account *account) ContractTransact(contractAddress common.Address, input [
 		}
 
 		// If the contract surely has code (or code is not needed), estimate the transaction
-		msg := ethereum.CallMsg{From: opts.From, To: &contractAddress, Value: value, Data: input}
+		msg := ethereum.CallMsg{From: opts.From, To: &contractAddress, Value: value, Data: data}
 		gasLimit, err = account.client.ethClient.EstimateGas(opts.Context, msg)
 		if err != nil {
 			return nil, fmt.Errorf("failed to estimate gas needed: %v", err)
@@ -406,7 +428,7 @@ func (account *account) ContractTransact(contractAddress common.Address, input [
 	}
 
 	// Create the transaction, sign it and schedule it for execution
-	rawTx := types.NewTransaction(nonce, contractAddress, value, gasLimit, gasPrice, input)
+	rawTx := types.NewTransaction(nonce, contractAddress, value, gasLimit, gasPrice, data)
 
 	if opts.Signer == nil {
 		return nil, errors.New("no signer to authorize the transaction with")
