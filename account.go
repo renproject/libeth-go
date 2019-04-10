@@ -83,6 +83,8 @@ type Account interface {
 	// Transfer sends the specified value of Eth to the given address.
 	Transfer(ctx context.Context, to common.Address, value *big.Int, speed TxExecutionSpeed, confirmBlocks int64, sendAll bool) (*types.Transaction, error)
 
+	ContractTransact(ctx context.Context, contractAddress common.Address, fnName string, params ...[]byte) (*types.Transaction, error)
+
 	// Transact performs a write operation on the Ethereum blockchain. It will
 	// first conduct a preConditionCheck and if the check passes, it will
 	// repeatedly execute the transaction followed by a postConditionCheck,
