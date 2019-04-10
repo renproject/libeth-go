@@ -317,7 +317,7 @@ func (client *Client) EthClient() *ethclient.Client {
 }
 
 // Relay the following transaction.
-func (client *Client) Relay(address, fnName string, params ...[]byte) error {
+func (client *Client) Relay(address, fnName string, params ...[]byte) (string, error) {
 	data := make([]string, len(params))
 	for i := range data {
 		data[i] = hex.EncodeToString(params[i])
@@ -331,29 +331,37 @@ func (client *Client) Relay(address, fnName string, params ...[]byte) error {
 
 	buf := new(bytes.Buffer)
 	if err := json.NewEncoder(buf).Encode(req); err != nil {
-		return err
+		return "", err
 	}
 
 	resp, err := http.Post(fmt.Sprintf("%s/relay", client.url), "encoding/json", buf)
 	if err != nil {
-		return err
+		return "", err
+	}
+
+	respBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		data, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return err
-		}
 		errObj := struct {
 			Error string `json:"error"`
 		}{}
-		if err := json.Unmarshal(data, &errObj); err != nil {
-			return err
+		if err := json.Unmarshal(respBytes, &errObj); err != nil {
+			return "", err
 		}
-		return fmt.Errorf(errObj.Error)
+		return "", fmt.Errorf(errObj.Error)
 	}
 
-	return nil
+	respObj := struct {
+		TxHash string `json:"txHash"`
+	}{}
+	if err := json.Unmarshal(respBytes, &respObj); err != nil {
+		return "", err
+	}
+
+	return respObj.TxHash, nil
 }
 
 // EthWSClient returns the ethereum ws client connection.
