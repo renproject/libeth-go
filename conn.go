@@ -316,6 +316,46 @@ func (client *Client) EthClient() *ethclient.Client {
 	return client.ethClient
 }
 
+// Relay the following transaction.
+func (client *Client) Relay(address, fnName string, params ...[]byte) error {
+	data := make([]string, len(params))
+	for i := range data {
+		data[i] = hex.EncodeToString(params[i])
+	}
+
+	req := struct {
+		Address string   `json:"address"`
+		FnName  string   `json:"fnName"`
+		Data    []string `json:"data"`
+	}{address, fnName, data}
+
+	buf := new(bytes.Buffer)
+	if err := json.NewEncoder(buf).Encode(req); err != nil {
+		return err
+	}
+
+	resp, err := http.Post(fmt.Sprintf("%s/relay", client.url), "encoding/json", buf)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		data, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return err
+		}
+		errObj := struct {
+			Error string `json:"error"`
+		}{}
+		if err := json.Unmarshal(data, &errObj); err != nil {
+			return err
+		}
+		return fmt.Errorf(errObj.Error)
+	}
+
+	return nil
+}
+
 // EthWSClient returns the ethereum ws client connection.
 func (client *Client) EthWSClient() *ethclient.Client {
 	return client.ethWSClient
