@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -359,6 +360,65 @@ func (account *account) Transfer(ctx context.Context, to common.Address, value *
 		return tx, nil
 	}
 	return account.Transact(ctx, speed, preConditionCheck, f, nil, confirmBlocks)
+}
+
+func (account *account) ContractTransact(contractAddress common.Address, input []byte) (*types.Transaction, error) {
+	var err error
+	opts := account.transactOpts
+
+	// Ensure a valid value field and resolve the account nonce
+	value := opts.Value
+	if value == nil {
+		value = new(big.Int)
+	}
+	var nonce uint64
+	if opts.Nonce == nil {
+		nonce, err = account.client.ethClient.PendingNonceAt(opts.Context, opts.From)
+		if err != nil {
+			return nil, fmt.Errorf("failed to retrieve account nonce: %v", err)
+		}
+	} else {
+		nonce = opts.Nonce.Uint64()
+	}
+	// Figure out the gas allowance and gas price values
+	gasPrice := opts.GasPrice
+	if gasPrice == nil {
+		gasPrice, err = account.client.ethClient.SuggestGasPrice(opts.Context)
+		if err != nil {
+			return nil, fmt.Errorf("failed to suggest gas price: %v", err)
+		}
+	}
+	gasLimit := opts.GasLimit
+	if gasLimit == 0 {
+		// Gas estimation cannot succeed without code for method invocations
+		if code, err := account.client.ethClient.PendingCodeAt(opts.Context, contractAddress); err != nil {
+			return nil, err
+		} else if len(code) == 0 {
+			return nil, fmt.Errorf("no code")
+		}
+
+		// If the contract surely has code (or code is not needed), estimate the transaction
+		msg := ethereum.CallMsg{From: opts.From, To: &contractAddress, Value: value, Data: input}
+		gasLimit, err = account.client.ethClient.EstimateGas(opts.Context, msg)
+		if err != nil {
+			return nil, fmt.Errorf("failed to estimate gas needed: %v", err)
+		}
+	}
+
+	// Create the transaction, sign it and schedule it for execution
+	rawTx := types.NewTransaction(nonce, contractAddress, value, gasLimit, gasPrice, input)
+
+	if opts.Signer == nil {
+		return nil, errors.New("no signer to authorize the transaction with")
+	}
+	signedTx, err := opts.Signer(types.HomesteadSigner{}, opts.From, rawTx)
+	if err != nil {
+		return nil, err
+	}
+	if err := account.client.ethClient.SendTransaction(opts.Context, signedTx); err != nil {
+		return nil, err
+	}
+	return signedTx, nil
 }
 
 // Sign the given message with the account's private key.
