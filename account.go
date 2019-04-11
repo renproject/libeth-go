@@ -389,6 +389,7 @@ func (account *account) ContractTransact(ctx context.Context, contractAddress co
 	}
 	data := append(parsed.Methods[fnName].Id(), arguments...)
 	opts := account.transactOpts
+	opts.Context = ctx
 
 	// Ensure a valid value field and resolve the account nonce
 	value := opts.Value
