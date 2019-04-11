@@ -329,6 +329,12 @@ func (client *Client) Relay(address, fnName string, params ...[]byte) (string, e
 		Data    []string `json:"data"`
 	}{address, fnName, data}
 
+	reqBytes, err := json.Marshal(req)
+	if err != nil {
+		return "", err
+	}
+	fmt.Println(string(reqBytes))
+
 	buf := new(bytes.Buffer)
 	if err := json.NewEncoder(buf).Encode(req); err != nil {
 		return "", err
