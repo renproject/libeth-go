@@ -83,7 +83,7 @@ type Account interface {
 	// Transfer sends the specified value of Eth to the given address.
 	Transfer(ctx context.Context, to common.Address, value *big.Int, speed TxExecutionSpeed, confirmBlocks int64, sendAll bool) (*types.Transaction, error)
 
-	ContractTransact(ctx context.Context, contractAddress common.Address, fnName string, params ...[]byte) (*types.Transaction, error)
+	ContractTransactCtor(ctx context.Context, contractAddress common.Address, fnName string, params ...[]byte) (func(transactOpts *bind.TransactOpts) (*types.Transaction, error), error)
 
 	// Transact performs a write operation on the Ethereum blockchain. It will
 	// first conduct a preConditionCheck and if the check passes, it will
@@ -364,7 +364,7 @@ func (account *account) Transfer(ctx context.Context, to common.Address, value *
 	return account.Transact(ctx, speed, preConditionCheck, f, nil, confirmBlocks)
 }
 
-func (account *account) ContractTransact(ctx context.Context, contractAddress common.Address, fnName string, params ...[]byte) (*types.Transaction, error) {
+func (account *account) ContractTransactCtor(ctx context.Context, contractAddress common.Address, fnName string, params ...[]byte) (func(transactOpts *bind.TransactOpts) (*types.Transaction, error), error) {
 	net, err := account.client.ethClient.NetworkID(ctx)
 	if err != nil {
 		return nil, err
@@ -388,62 +388,65 @@ func (account *account) ContractTransact(ctx context.Context, contractAddress co
 		arguments = append(arguments, padParam(param)...)
 	}
 	data := append(parsed.Methods[fnName].Id(), arguments...)
-	opts := account.transactOpts
-	opts.Context = ctx
 
-	// Ensure a valid value field and resolve the account nonce
-	value := opts.Value
-	if value == nil {
-		value = new(big.Int)
-	}
-	var nonce uint64
-	if opts.Nonce == nil {
-		nonce, err = account.client.ethClient.PendingNonceAt(opts.Context, opts.From)
-		if err != nil {
-			return nil, fmt.Errorf("failed to retrieve account nonce: %v", err)
+	return func(transactOpts *bind.TransactOpts) (*types.Transaction, error) {
+		opts := transactOpts
+		opts.Context = ctx
+
+		// Ensure a valid value field and resolve the account nonce
+		value := opts.Value
+		if value == nil {
+			value = new(big.Int)
 		}
-	} else {
-		nonce = opts.Nonce.Uint64()
-	}
-	// Figure out the gas allowance and gas price values
-	gasPrice := opts.GasPrice
-	if gasPrice == nil {
-		gasPrice, err = account.client.ethClient.SuggestGasPrice(opts.Context)
-		if err != nil {
-			return nil, fmt.Errorf("failed to suggest gas price: %v", err)
+		var nonce uint64
+		if opts.Nonce == nil {
+			nonce, err = account.client.ethClient.PendingNonceAt(opts.Context, opts.From)
+			if err != nil {
+				return nil, fmt.Errorf("failed to retrieve account nonce: %v", err)
+			}
+		} else {
+			nonce = opts.Nonce.Uint64()
 		}
-	}
-	gasLimit := opts.GasLimit
-	if gasLimit == 0 {
-		// Gas estimation cannot succeed without code for method invocations
-		if code, err := account.client.ethClient.PendingCodeAt(opts.Context, contractAddress); err != nil {
+		// Figure out the gas allowance and gas price values
+		gasPrice := opts.GasPrice
+		if gasPrice == nil {
+			gasPrice, err = account.client.ethClient.SuggestGasPrice(opts.Context)
+			if err != nil {
+				return nil, fmt.Errorf("failed to suggest gas price: %v", err)
+			}
+		}
+		gasLimit := opts.GasLimit
+		if gasLimit == 0 {
+			// Gas estimation cannot succeed without code for method invocations
+			if code, err := account.client.ethClient.PendingCodeAt(opts.Context, contractAddress); err != nil {
+				return nil, err
+			} else if len(code) == 0 {
+				return nil, fmt.Errorf("no code")
+			}
+
+			// If the contract surely has code (or code is not needed), estimate the transaction
+			msg := ethereum.CallMsg{From: opts.From, To: &contractAddress, Value: value, Data: data}
+			gasLimit, err = account.client.ethClient.EstimateGas(opts.Context, msg)
+			if err != nil {
+				return nil, fmt.Errorf("failed to estimate gas needed: %v", err)
+			}
+		}
+
+		// Create the transaction, sign it and schedule it for execution
+		rawTx := types.NewTransaction(nonce, contractAddress, value, gasLimit, gasPrice, data)
+
+		if opts.Signer == nil {
+			return nil, errors.New("no signer to authorize the transaction with")
+		}
+		signedTx, err := opts.Signer(types.HomesteadSigner{}, opts.From, rawTx)
+		if err != nil {
 			return nil, err
-		} else if len(code) == 0 {
-			return nil, fmt.Errorf("no code")
 		}
-
-		// If the contract surely has code (or code is not needed), estimate the transaction
-		msg := ethereum.CallMsg{From: opts.From, To: &contractAddress, Value: value, Data: data}
-		gasLimit, err = account.client.ethClient.EstimateGas(opts.Context, msg)
-		if err != nil {
-			return nil, fmt.Errorf("failed to estimate gas needed: %v", err)
+		if err := account.client.ethClient.SendTransaction(opts.Context, signedTx); err != nil {
+			return nil, err
 		}
-	}
-
-	// Create the transaction, sign it and schedule it for execution
-	rawTx := types.NewTransaction(nonce, contractAddress, value, gasLimit, gasPrice, data)
-
-	if opts.Signer == nil {
-		return nil, errors.New("no signer to authorize the transaction with")
-	}
-	signedTx, err := opts.Signer(types.HomesteadSigner{}, opts.From, rawTx)
-	if err != nil {
-		return nil, err
-	}
-	if err := account.client.ethClient.SendTransaction(opts.Context, signedTx); err != nil {
-		return nil, err
-	}
-	return signedTx, nil
+		return signedTx, nil
+	}, nil
 }
 
 // Sign the given message with the account's private key.
