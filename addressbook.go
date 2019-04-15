@@ -37,6 +37,8 @@ var KovanAddressBook = AddressBook{
 	"RenExOrderbook":   common.HexToAddress("0x0000000000000000000000000000000000000000"),
 	"RenExSettlement":  common.HexToAddress("0x0000000000000000000000000000000000000000"),
 	"DarknodeRegistry": common.HexToAddress("0x75Fa8349fc9C7C640A4e9F1A1496fBB95D2Dc3d5"),
+	"BitcoinRenShift":  common.HexToAddress("0x2a8368d2a983a0aeae8da0ebc5b7c03a0ea66b37"),
+	"ZCashRenShift":    common.HexToAddress("0xd67256552f93b39ac30083b4b679718a061feae6"),
 	"ETHSwap":          common.HexToAddress("0xc3183C98F4799d6004d38fF6578E677fa0B31b33"),
 	"WBTCSwap":         common.HexToAddress("0xfe6a471D51d009cBbA7E99fB57fF31e7da80E47A"),
 	"RENSwap":          common.HexToAddress("0x5B3A355C68BD9F6EAF87687d7388cFBFE9eDa8f3"),
