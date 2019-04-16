@@ -233,7 +233,6 @@ func (client Client) Call(ctx context.Context, address, fnName string, params ..
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Data in Call: ", hex.EncodeToString(data))
 
 	contractAddr := common.HexToAddress(address)
 	sleepDurationMs := time.Duration(1000)
@@ -281,8 +280,6 @@ func (client Client) Query(ctx context.Context, address, fnName string, params .
 	}
 
 	data := append(parsed.Methods[fnName].Id(), arguments...)
-	fmt.Println("Data in Query: ", hex.EncodeToString(data))
-
 	sleepDurationMs := time.Duration(1000)
 	for {
 		select {
@@ -328,12 +325,6 @@ func (client *Client) Relay(address, fnName string, params ...[]byte) (string, e
 		FnName  string   `json:"fnName"`
 		Data    []string `json:"data"`
 	}{address, fnName, data}
-
-	reqBytes, err := json.Marshal(req)
-	if err != nil {
-		return "", err
-	}
-	fmt.Println(string(reqBytes))
 
 	buf := new(bytes.Buffer)
 	if err := json.NewEncoder(buf).Encode(req); err != nil {
