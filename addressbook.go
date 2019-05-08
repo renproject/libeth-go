@@ -34,14 +34,14 @@ var MainnetAddressBook = AddressBook{
 var RopstenAddressBook = AddressBook{}
 
 var KovanAddressBook = AddressBook{
-	"RenShift":             common.HexToAddress("0xC0C4258E5c8483A827fd7446429b2d6B80c9e1Cf"),
-	"RenShiftEx":           common.HexToAddress("0xc91f93d806f9c974cf7a14c2c0694ef0ea5ef08d"),
-	"RenShiftExAdapter":    common.HexToAddress("0x486748ae4e8ef4e345f99b8cb9c9f727f4aa5197"),
-	"ETH-BTC-Reserve":      common.HexToAddress("0x187cfdb77c5df323612c1e88eb926e6cf6446975"),
-	"ETH-ZEC-Reserve":      common.HexToAddress("0xfd7681e4eb748790a883cecddea4da37a285979e"),
-	"ZEC-BTC-Reserve":      common.HexToAddress("0xad736a75442f6b68a781684e5be24bfc802135cb"),
-	"ShiftedBTC":           common.HexToAddress("0x7D2f7e5A9C5b56770fc5F14824b20E9801F8E39a"),
-	"ShiftedZEC":           common.HexToAddress("0x41C68C0fCC34d0016c745dbC61b98c1ecf4C5C11"),
+	"RenShift":             common.HexToAddress("0xa68acf54957c70d9e88565398b621dc094c82836"),
+	"RenShiftEx":           common.HexToAddress("0x0df3510a4128c0ca11518465f670db970e9302b7"),
+	"RenShiftExAdapter":    common.HexToAddress("0x8cfbf788757e767392e707aca1ec18ce26e570fc"),
+	"ETH-BTC-Reserve":      common.HexToAddress("0x1fe044862a3d674cd13dc45a74dc179894022379"),
+	"ETH-ZEC-Reserve":      common.HexToAddress("0x39cd35f90c2d5a7cfa4f0a76a28da15ab4464770"),
+	"ZEC-BTC-Reserve":      common.HexToAddress("0x0fc92017944be95d02bdbc213cbbf93cc4521dcb"),
+	"ShiftedBTC":           common.HexToAddress("0xFd44199b94EA4398aEa3dD5E1014e550D4cC5b9B"),
+	"ShiftedZEC":           common.HexToAddress("0x18344Da571edfa6c3E37C2c4ec93B93F70692B14"),
 	"RenExOrderbook":       common.HexToAddress("0x0000000000000000000000000000000000000000"),
 	"RenExSettlement":      common.HexToAddress("0x0000000000000000000000000000000000000000"),
 	"DarknodeRegistry":     common.HexToAddress("0x1C6309618338D0EDf9a7Ea8eA18E060fD323020D"),
