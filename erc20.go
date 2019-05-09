@@ -7,12 +7,13 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/renproject/libeth-go/bindings"
 )
 
 type erc20 struct {
-	client  *Client
-	account *account
-	cerc20  *CompatibleERC20
+	client   *Client
+	account  *account
+	bindings *bindings.ERC20Detailed
 }
 
 type ERC20 interface {
@@ -23,6 +24,7 @@ type ERC20 interface {
 }
 
 type ERC20View interface {
+	Decimals(ctx context.Context) (int64, error)
 	BalanceOf(ctx context.Context, who common.Address) (*big.Int, error)
 	Allowance(ctx context.Context, owner, spender common.Address) (*big.Int, error)
 }
@@ -32,15 +34,15 @@ func (account *account) NewERC20(addressOrAlias string) (ERC20, error) {
 	if !ok {
 		address = common.HexToAddress(addressOrAlias)
 	}
-	compatibleERC20, err := NewCompatibleERC20(address, bind.ContractBackend(account.EthClient()))
+	bindings, err := bindings.NewERC20Detailed(address, bind.ContractBackend(account.EthClient()))
 	if err != nil {
 		return nil, err
 	}
 	client := account.Client()
 	return &erc20{
-		client:  &client,
-		account: account,
-		cerc20:  compatibleERC20,
+		client:   &client,
+		account:  account,
+		bindings: bindings,
 	}, nil
 }
 
@@ -49,20 +51,32 @@ func (client *Client) NewERC20View(addressOrAlias string) (ERC20View, error) {
 	if !ok {
 		address = common.HexToAddress(addressOrAlias)
 	}
-	compatibleERC20, err := NewCompatibleERC20(address, bind.ContractBackend(client.EthClient()))
+	bindings, err := bindings.NewERC20Detailed(address, bind.ContractBackend(client.EthClient()))
 	if err != nil {
 		return nil, err
 	}
 	return &erc20{
-		client: client,
-		cerc20: compatibleERC20,
+		client:   client,
+		bindings: bindings,
 	}, nil
+}
+
+func (erc20 *erc20) Decimals(ctx context.Context) (int64, error) {
+	var decimals int64
+	return decimals, erc20.client.Get(ctx, func() error {
+		dec, err := erc20.bindings.Decimals(&bind.CallOpts{})
+		if err != nil {
+			return err
+		}
+		decimals = int64(dec)
+		return nil
+	})
 }
 
 func (erc20 *erc20) BalanceOf(ctx context.Context, who common.Address) (*big.Int, error) {
 	var balance *big.Int
 	return balance, erc20.client.Get(ctx, func() error {
-		bal, err := erc20.cerc20.BalanceOf(&bind.CallOpts{}, who)
+		bal, err := erc20.bindings.BalanceOf(&bind.CallOpts{}, who)
 		if err != nil {
 			return err
 		}
@@ -74,7 +88,7 @@ func (erc20 *erc20) BalanceOf(ctx context.Context, who common.Address) (*big.Int
 func (erc20 *erc20) Allowance(ctx context.Context, owner, spender common.Address) (*big.Int, error) {
 	var allowance *big.Int
 	return allowance, erc20.client.Get(ctx, func() error {
-		alw, err := erc20.cerc20.Allowance(&bind.CallOpts{}, owner, spender)
+		alw, err := erc20.bindings.Allowance(&bind.CallOpts{}, owner, spender)
 		if err != nil {
 			return err
 		}
@@ -97,7 +111,7 @@ func (erc20 *erc20) Transfer(ctx context.Context, to common.Address, amount *big
 		speed,
 		nil,
 		func(tops *bind.TransactOpts) (*types.Transaction, error) {
-			tx, err := erc20.cerc20.Transfer(tops, to, amount)
+			tx, err := erc20.bindings.Transfer(tops, to, amount)
 			if err != nil {
 				return tx, err
 			}
@@ -114,7 +128,7 @@ func (erc20 *erc20) Approve(ctx context.Context, spender common.Address, amount 
 		speed,
 		nil,
 		func(tops *bind.TransactOpts) (*types.Transaction, error) {
-			tx, err := erc20.cerc20.Approve(tops, spender, amount)
+			tx, err := erc20.bindings.Approve(tops, spender, amount)
 			if err != nil {
 				return tx, err
 			}
@@ -131,7 +145,7 @@ func (erc20 *erc20) TransferFrom(ctx context.Context, from, to common.Address, a
 		speed,
 		nil,
 		func(tops *bind.TransactOpts) (*types.Transaction, error) {
-			tx, err := erc20.cerc20.TransferFrom(tops, from, to, amount)
+			tx, err := erc20.bindings.TransferFrom(tops, from, to, amount)
 			if err != nil {
 				return tx, err
 			}
