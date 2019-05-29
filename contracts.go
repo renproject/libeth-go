@@ -5,10 +5,10 @@ import "github.com/ethereum/go-ethereum/common"
 type Contracts map[common.Address]string
 
 var KovanContracts = Contracts{
-	common.HexToAddress("0x5Ca1E38c02FB3897B9ED04C9668789d6afC394b1"): "ZBTC",
-	common.HexToAddress("0x79c1fb251F8E9c494B0d530EdA02328E33fE6E3e"): "ZZEC",
+	common.HexToAddress("0xE8879151DcFF6F4Ef4446aD3984B08cb23E42471"): "ZBTC",
+	common.HexToAddress("0x458E70892Fba2966cA61578635432a06e24953F3"): "ZZEC",
 	common.HexToAddress("0xd56aed911840bd15316ae3038ac7381ebbebd909"): "WarpGate",
-	common.HexToAddress("0x7F0432785c31e6477035d9238A379B6B93227a7c"): "RenShift",
+	common.HexToAddress("0x2f9eeB0d1bD2734083d241a3314451Fc5118fb3F"): "RenShift",
 }
 
 var ContractABIs = map[string]string{

@@ -499,7 +499,7 @@ var _ = Describe("contracts", func() {
 					Expect(ok).Should(BeTrue())
 				})
 
-				FIt("should successfully return the result", func() {
+				It("should successfully return the result", func() {
 					to := common.HexToAddress("0xb711f28edb3eff09902b5fb952d2cd40a09332fe")
 					val := big.NewInt(20000)
 					hash, err := hex.DecodeString("b6248da5a7cce134a3f365d62ee80fe938be10926ba48e270a621a351bf40a8f")
@@ -515,7 +515,7 @@ var _ = Describe("contracts", func() {
 					fmt.Println(hex.EncodeToString(commitHash[:]))
 				})
 
-				FIt("should successfully return the result", func() {
+				It("should successfully return the result", func() {
 					to, err := hex.DecodeString("b711f28edb3eff09902b5fb952d2cd40a09332fe")
 					Expect(err).ShouldNot(HaveOccurred())
 					val, err := hex.DecodeString("4e20")
