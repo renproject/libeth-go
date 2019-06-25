@@ -31,7 +31,19 @@ var _ = Describe("contracts", func() {
 			return nil, err
 		}
 
-		client, err := libeth.NewMercuryClient(network, "")
+		var renNetwork libeth.RenNetwork
+		switch network {
+		case "mainnet":
+			renNetwork = libeth.Mainnet
+		case "kovan":
+			renNetwork = libeth.Testnet
+		case "ropsten":
+			renNetwork = libeth.Ropsten
+		default:
+			panic(fmt.Errorf("unsupported network: %s", renNetwork))
+		}
+
+		client, err := libeth.NewMercuryClient(renNetwork, "")
 		if err != nil {
 			return nil, err
 		}
@@ -253,9 +265,9 @@ var _ = Describe("contracts", func() {
 	loadAddressBook := func(network string) libeth.AddressBook {
 		switch network {
 		case "ropsten":
-			return libeth.DefaultAddressBook(3)
+			return libeth.NetworkAddressBook(libeth.Ropsten)
 		case "kovan":
-			return libeth.DefaultAddressBook(42)
+			return libeth.NetworkAddressBook(libeth.Testnet)
 		default:
 			return libeth.AddressBook{}
 		}

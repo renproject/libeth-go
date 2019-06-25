@@ -136,11 +136,6 @@ func NewAccount(client Client, privateKey *ecdsa.PrivateKey) (Account, error) {
 	}
 	transactOpts.Nonce = big.NewInt(0).SetUint64(nonce)
 
-	netID, err := client.ethClient.NetworkID(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	// Create account
 	account := &account{
 		mu:           new(sync.RWMutex),
@@ -148,7 +143,7 @@ func NewAccount(client Client, privateKey *ecdsa.PrivateKey) (Account, error) {
 		callOpts:     new(bind.CallOpts),
 		transactOpts: transactOpts,
 		privateKey:   privateKey,
-		addressBook:  DefaultAddressBook(netID.Int64()),
+		addressBook:  NetworkAddressBook(client.renNetwork),
 	}
 
 	return account, nil
@@ -370,7 +365,7 @@ func (account *account) ContractTransactCtor(ctx context.Context, contractAddres
 		return nil, err
 	}
 
-	contractAbi, ok := ContractABIs[account.client.contracts[contractAddress]]
+	contractAbi, ok := ContractABIs[contractAddress.String()]
 	if !ok {
 		contractAbi, err = getABI(net.Int64(), contractAddress.String(), account.client.apiKey)
 		if err != nil {

@@ -4,93 +4,108 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+// AddressBook maps contract names to their addresses.
 type AddressBook map[string]common.Address
 
+// MainnetAddressBook is the address book for the Mainnet Ren network on the
+// main Ethereum network.
 var MainnetAddressBook = AddressBook{
-	"DarknodePayment":      common.HexToAddress("0x5a7802E66b067cB1770ee5b1165AA201690A8B6a"),
-	"DarknodePaymentStore": common.HexToAddress("0x731Ea4Ba77fF184d89dBeB160A0078274Acbe9D2"),
-	"DarknodeRegistry":     common.HexToAddress("0x34bd421C7948Bc16f826Fd99f9B785929b121633"),
-	"DGX":                  common.HexToAddress("0x4f3AfEC4E5a3F2A6a1A411DEF7D7dFe50eE057bF"),
-	"TUSD":                 common.HexToAddress("0x0000000000085d4780B73119b644AE5ecd22b376"),
-	"REN":                  common.HexToAddress("0x408e41876cccdc0f92210600ef50372656052a38"),
-	"WBTC":                 common.HexToAddress("0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"),
-	"ZRX":                  common.HexToAddress("0xE41d2489571d322189246DaFA5ebDe1F4699F498"),
-	"OMG":                  common.HexToAddress("0xd26114cd6EE289AccF82350c8d8487fedB8A0C07"),
-	"USDC":                 common.HexToAddress("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"),
-	"GUSD":                 common.HexToAddress("0x056fd409e1d7a124bd7017459dfea2f387b6d5cd"),
-	"DAI":                  common.HexToAddress("0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359"),
-	"PAX":                  common.HexToAddress("0x8e870d67f660d95d5be530380d0ec0bd388289e1"),
-	"ETHSwap":              common.HexToAddress("0x50F2b7aB72551b399aC81081484ef0b0F23aa38C"),
-	"WBTCSwap":             common.HexToAddress("0x048babB592a39Dd5B4B0A52CD5638cab536b1bdD"),
-	"RENSwap":              common.HexToAddress("0x4B77Ab393928f62307824Ea94D631ec887cA6E49"),
-	"TUSDSwap":             common.HexToAddress("0x517F5e4E7FDA6792B338227d4F6EB34c83c5499D"),
-	"OMGSwap":              common.HexToAddress("0x665f881Fd19E821F39c306dC3f0D83dC1Db9a18C"),
-	"ZRXSwap":              common.HexToAddress("0x2f6A213FA2A67FB126e716D134Ac33e51EF7711B"),
-	"DGXSwap":              common.HexToAddress("0x98b37BA3826A1F9295fFB819e209eb0c52BdA7E7"),
-	"USDCSwap":             common.HexToAddress("0xCd1d2dD16a424C4857eE433542B3Ba8DdB08aC44"),
-	"GUSDSwap":             common.HexToAddress("0x42a28d8F40e2cf0Ad62d39d63104F1dE6f782374"),
-	"DAISwap":              common.HexToAddress("0x3F6C8124691D20d67C522a61507AAc2a28376caE"),
-	"PAXSwap":              common.HexToAddress("0x2d92eB5FbC9e2B2026aD371B31dc267240cDFE40"),
+	// Ren contracts
+	"DarknodeRegistry":      common.HexToAddress("0x34bd421C7948Bc16f826Fd99f9B785929b121633"),
+	"DarknodeRegistryStore": common.HexToAddress("0x06df0657ba5e8f5339e742212669f6e7ee3c5057"),
+	"DarknodePayment":       common.HexToAddress("0x5a7802E66b067cB1770ee5b1165AA201690A8B6a"),
+	"DarknodePaymentStore":  common.HexToAddress("0x731Ea4Ba77fF184d89dBeB160A0078274Acbe9D2"),
+	// Tokens
+	"DGX":  common.HexToAddress("0x4f3AfEC4E5a3F2A6a1A411DEF7D7dFe50eE057bF"),
+	"TUSD": common.HexToAddress("0x0000000000085d4780B73119b644AE5ecd22b376"),
+	"REN":  common.HexToAddress("0x408e41876cccdc0f92210600ef50372656052a38"),
+	"WBTC": common.HexToAddress("0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"),
+	"ZRX":  common.HexToAddress("0xE41d2489571d322189246DaFA5ebDe1F4699F498"),
+	"OMG":  common.HexToAddress("0xd26114cd6EE289AccF82350c8d8487fedB8A0C07"),
+	"USDC": common.HexToAddress("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"),
+	"GUSD": common.HexToAddress("0x056fd409e1d7a124bd7017459dfea2f387b6d5cd"),
+	"DAI":  common.HexToAddress("0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359"),
+	"PAX":  common.HexToAddress("0x8e870d67f660d95d5be530380d0ec0bd388289e1"),
 }
 
+// RopstenAddressBook is the empty address book for the Ropsten Ethereum
+// network.
 var RopstenAddressBook = AddressBook{}
 
-var KovanAddressBook = AddressBook{
-	"BTCShifter":           common.HexToAddress("0x11172e0c457019Bec60f342c2171CF762D64Be18"),
-	"ZECShifter":           common.HexToAddress("0x12B0beA3b382237Fc5264C609e84fc7171de38F2"),
-	"RenShiftEx":           common.HexToAddress("0x2C32492A7542EAb706092c49d35F53228b4b78A5"),
-	"RenShiftExAdapter":    common.HexToAddress("0x296A2c9f8E68Cf2c45A116198E009Dfb7A11931d"),
-	"ZEC-BTC-Reserve":      common.HexToAddress("0x5C1eA9E24229b715cC53aBC6d89839C62B6cc5C6"),
-	"DAI-BTC-Reserve":      common.HexToAddress("0x90Fe4F1c8Ad9152a14cFC1866224C3d474F19AE9"),
-	"ETH-BTC-Reserve":      common.HexToAddress("0x3d2d8f5C8417d43DF28baF4E97d6Cff2F352E20f"),
-	"REN-BTC-Reserve":      common.HexToAddress("0x748BB7Ddf7022Bbfe38d963acf946cF9d9E512b8"),
-	"DAI-ZEC-Reserve":      common.HexToAddress("0x78cFFca0C65B521A95B953A9Db07EA5eE1DdEd11"),
-	"ETH-ZEC-Reserve":      common.HexToAddress("0xcb6b65Ee06feE8Ef56a22683D6898483a43E0C36"),
-	"REN-ZEC-Reserve":      common.HexToAddress("0xa7c9487a1714f88A5A77043a2F9e21Fd482e2b48"),
-	"ETH-DAI-Reserve":      common.HexToAddress("0xd35D905b76F5280ce88A6d75d20aaC6725d80be1"),
-	"REN-DAI-Reserve":      common.HexToAddress("0x024631D79203925d3108bE75eb8a0C277A1D9104"),
-	"REN-ETH-Reserve":      common.HexToAddress("0x4F0f9A5E6f2436022fD53ADBc9Af19B2a02Bdff2"),
-	"ShiftedBTC":           common.HexToAddress("0xef44c39102Ab3479F271e2fb3F27dB56D13b7a42"),
-	"ShiftedZEC":           common.HexToAddress("0x5c67129a465Ae131CD47F97a4B57C6d0eEaFe2e6"),
-	"RenExOrderbook":       common.HexToAddress("0x0000000000000000000000000000000000000000"),
-	"RenExSettlement":      common.HexToAddress("0x0000000000000000000000000000000000000000"),
-	"DarknodeRegistry":     common.HexToAddress("0x1C6309618338D0EDf9a7Ea8eA18E060fD323020D"),
-	"DarknodePayment":      common.HexToAddress("0x8E11B87547f4072CC8A094F2888201CAF4EA0B9e"),
-	"DarknodePaymentStore": common.HexToAddress("0xA9411C3AD1fBE168fd119A3B32fB481a0b9877A9"),
-	"BitcoinRenShift":      common.HexToAddress("0x2a8368d2a983a0aeae8da0ebc5b7c03a0ea66b37"),
-	"ZCashRenShift":        common.HexToAddress("0xd67256552f93b39ac30083b4b679718a061feae6"),
-	"ETHSwap":              common.HexToAddress("0xc3183C98F4799d6004d38fF6578E677fa0B31b33"),
-	"WBTCSwap":             common.HexToAddress("0xfe6a471D51d009cBbA7E99fB57fF31e7da80E47A"),
-	"RENSwap":              common.HexToAddress("0x5B3A355C68BD9F6EAF87687d7388cFBFE9eDa8f3"),
-	"TUSDSwap":             common.HexToAddress("0x291c7859e04E3cdE794eDb4739E7352BCb20D289"),
-	"OMGSwap":              common.HexToAddress("0x4087DfbD64e53d1f00790B7920394DE329197721"),
-	"ZRXSwap":              common.HexToAddress("0x371720f220D697d451350C363f51De8FF4fAE6f8"),
-	"DGXSwap":              common.HexToAddress("0x047E9eb23652F085942227eaac32941D6483b632"),
-	"USDCSwap":             common.HexToAddress("0x003803380687eD0d07463a1071dd96d20b698fbb"),
-	"GUSDSwap":             common.HexToAddress("0x0EE5d4B23B62292fbEd63eeC85eA315eD6925959"),
-	"DAISwap":              common.HexToAddress("0x050298877821b80b96fB28E0fa518367C0817723"),
-	"PAXSwap":              common.HexToAddress("0x859454f3557f60a3d928184f823246Eb3109C72D"),
-	"WBTC":                 common.HexToAddress("0xA1D3EEcb76285B4435550E4D963B8042A8bffbF0"),
-	"REN":                  common.HexToAddress("0x2CD647668494c1B15743AB283A0f980d90a87394"),
-	"ZRX":                  common.HexToAddress("0x6EB628dCeFA95802899aD3A9EE0C7650Ac63d543"),
-	"OMG":                  common.HexToAddress("0x66497ba75dD127b46316d806c077B06395918064"),
-	"USDC":                 common.HexToAddress("0x3f0a4aed397c66d7b7dde1d170321f87656b14cc"),
-	"GUSD":                 common.HexToAddress("0xA9CF366E9fb4F7959452d7a17A6F88ee2A20e9DA"),
-	"DAI":                  common.HexToAddress("0xc4375b7de8af5a38a93548eb8453a498222c4ff2"),
-	"TUSD":                 common.HexToAddress("0x525389752ffe6487d33EF53FBcD4E5D3AD7937a0"),
-	"DGX":                  common.HexToAddress("0x7d6D31326b12B6CBd7f054231D47CbcD16082b71"),
-	"PAX":                  common.HexToAddress("0x3584087444dabf2e0d29284766142ac5c3a9a2b7"),
+// TestnetAddressBook is the address book for the Testnet Ren network on the
+// Kovan Ethereum network.
+var TestnetAddressBook = AddressBook{
+	// Ren contracts
+	"DarknodeRegistry":      common.HexToAddress("0x1C6309618338D0EDf9a7Ea8eA18E060fD323020D"),
+	"DarknodeRegistryStore": common.HexToAddress("0x88e4477e4fdd677aee2dc9376471d45c198669fa"),
+	"DarknodePayment":       common.HexToAddress("0x8E11B87547f4072CC8A094F2888201CAF4EA0B9e"),
+	"DarknodePaymentStore":  common.HexToAddress("0xA9411C3AD1fBE168fd119A3B32fB481a0b9877A9"),
+	// Shifter contracts
+	"ShifterRegistry": common.HexToAddress("0x89aB0D4e64b1cb7F961228b70595a46BF0761546"),
+	"BTCShifter":      common.HexToAddress("0xcAEd211A141BfbC7244F17a6dABeA7456b5E2Af5"),
+	"ZECShifter":      common.HexToAddress("0x65E967F51be974d002090BdC604C088B8b79Dbb3"),
+	"zBTC":            common.HexToAddress("0x7cf9A2de7D5e81e6d4372D9b20D27AB8267295d5"),
+	"zZEC":            common.HexToAddress("0x47b8941De0B214E0d18154B4fDa1DbE0d1484215"),
+	// Tokens
+	"WBTC": common.HexToAddress("0xA1D3EEcb76285B4435550E4D963B8042A8bffbF0"),
+	"REN":  common.HexToAddress("0x2CD647668494c1B15743AB283A0f980d90a87394"),
+	"ZRX":  common.HexToAddress("0x6EB628dCeFA95802899aD3A9EE0C7650Ac63d543"),
+	"OMG":  common.HexToAddress("0x66497ba75dD127b46316d806c077B06395918064"),
+	"USDC": common.HexToAddress("0x3f0a4aed397c66d7b7dde1d170321f87656b14cc"),
+	"GUSD": common.HexToAddress("0xA9CF366E9fb4F7959452d7a17A6F88ee2A20e9DA"),
+	"DAI":  common.HexToAddress("0xc4375b7de8af5a38a93548eb8453a498222c4ff2"),
+	"TUSD": common.HexToAddress("0x525389752ffe6487d33EF53FBcD4E5D3AD7937a0"),
+	"DGX":  common.HexToAddress("0x7d6D31326b12B6CBd7f054231D47CbcD16082b71"),
+	"PAX":  common.HexToAddress("0x3584087444dabf2e0d29284766142ac5c3a9a2b7"),
 }
 
-func DefaultAddressBook(network int64) AddressBook {
+// DevnetAddressBook is the address book for the Devnet Ren network on the
+// Kovan Ethereum network.
+var DevnetAddressBook = AddressBook{
+	// Ren contracts
+	"DarknodeRegistry":      common.HexToAddress("0x6E1a6b85f05bfec5c24C7a26E302cB28e639651c"),
+	"DarknodeRegistryStore": common.HexToAddress("0xC126a308dd07Adfa4a445686dcF7CbC423185593"),
+	"DarknodePayment":       common.HexToAddress("0x1f1b1d015Fc31d425C616cC35E39e31686DA69A8"),
+	"DarknodePaymentStore":  common.HexToAddress("0x6341DF1012E862f766Fcd72e0fCAAc5a3839CFef"),
+	// Shifter contracts
+	"ShifterRegistry": common.HexToAddress("0xA28cC8B81906D2A42beF0bF782CECe3b75f91E6b"),
+	"BTCShifter":      common.HexToAddress("0x11172e0c457019Bec60f342c2171CF762D64Be18"),
+	"ZECShifter":      common.HexToAddress("0x12B0beA3b382237Fc5264C609e84fc7171de38F2"),
+	"zBTC":            common.HexToAddress("0xef44c39102Ab3479F271e2fb3F27dB56D13b7a42"),
+	"zZEC":            common.HexToAddress("0x5c67129a465Ae131CD47F97a4B57C6d0eEaFe2e6"),
+	// Tokens
+	"WBTC": common.HexToAddress("0xA1D3EEcb76285B4435550E4D963B8042A8bffbF0"),
+	"REN":  common.HexToAddress("0x2CD647668494c1B15743AB283A0f980d90a87394"),
+	"ZRX":  common.HexToAddress("0x6EB628dCeFA95802899aD3A9EE0C7650Ac63d543"),
+	"OMG":  common.HexToAddress("0x66497ba75dD127b46316d806c077B06395918064"),
+	"USDC": common.HexToAddress("0x3f0a4aed397c66d7b7dde1d170321f87656b14cc"),
+	"GUSD": common.HexToAddress("0xA9CF366E9fb4F7959452d7a17A6F88ee2A20e9DA"),
+	"DAI":  common.HexToAddress("0xc4375b7de8af5a38a93548eb8453a498222c4ff2"),
+	"TUSD": common.HexToAddress("0x525389752ffe6487d33EF53FBcD4E5D3AD7937a0"),
+	"DGX":  common.HexToAddress("0x7d6D31326b12B6CBd7f054231D47CbcD16082b71"),
+	"PAX":  common.HexToAddress("0x3584087444dabf2e0d29284766142ac5c3a9a2b7"),
+}
+
+func NetworkAddressBook(network RenNetwork) AddressBook {
 	switch network {
-	case 1:
+	case Mainnet:
 		return MainnetAddressBook
-	case 3:
+	case Ropsten:
 		return RopstenAddressBook
-	case 42:
-		return KovanAddressBook
+	case Testnet:
+		return TestnetAddressBook
+	case Devnet:
+		return DevnetAddressBook
 	default:
 		return AddressBook{}
 	}
+}
+
+type Contracts map[common.Address]string
+
+var ContractABIs = map[string]string{
+	"0xF228173631461642c737855d0a4Be25ce89Dd486": "[{\"constant\":true,\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"spender\",\"type\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"from\",\"type\":\"address\"},{\"name\":\"to\",\"type\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_to\",\"type\":\"bytes\"},{\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"burn\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"spender\",\"type\":\"address\"},{\"name\":\"addedValue\",\"type\":\"uint256\"}],\"name\":\"increaseAllowance\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"commitment\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\"}],\"payable\":false,\"stateMutability\":\"pure\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_amount\",\"type\":\"uint256\"},{\"name\":\"_sig\",\"type\":\"bytes\"}],\"name\":\"mint\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"spender\",\"type\":\"address\"},{\"name\":\"subtractedValue\",\"type\":\"uint256\"}],\"name\":\"decreaseAllowance\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"to\",\"type\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"owner\",\"type\":\"address\"},{\"name\":\"spender\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"_owner\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"_to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"_amount\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"_sig\",\"type\":\"bytes\"}],\"name\":\"LogMint\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"_to\",\"type\":\"bytes\"},{\"indexed\":false,\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"LogBurn\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"}]",
+	"0x44831d9CDD36FB829eb2D9aA904b1078C496DB56": `[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"sender","type":"address"},{"name":"recipient","type":"address"},{"name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_amount","type":"uint256"}],"name":"mint","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"account","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"renounceOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"isOwner","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_amount","type":"uint256"}],"name":"burn","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"recipient","type":"address"},{"name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"owner","type":"address"},{"name":"spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[{"name":"_name","type":"string"},{"name":"_symbol","type":"string"},{"name":"_decimals","type":"uint8"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"previousOwner","type":"address"},{"indexed":true,"name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"owner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Approval","type":"event"}]`,
+	"0xd56aed911840bd15316ae3038ac7381ebbebd909": "[{\"constant\":true,\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"spender\",\"type\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_amount\",\"type\":\"uint256\"},{\"name\":\"_hash\",\"type\":\"bytes32\"},{\"name\":\"_r\",\"type\":\"bytes32\"},{\"name\":\"_s\",\"type\":\"bytes32\"},{\"name\":\"_v\",\"type\":\"uint8\"}],\"name\":\"mint\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"from\",\"type\":\"address\"},{\"name\":\"to\",\"type\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_to\",\"type\":\"bytes\"},{\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"burn\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"spender\",\"type\":\"address\"},{\"name\":\"addedValue\",\"type\":\"uint256\"}],\"name\":\"increaseAllowance\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"spender\",\"type\":\"address\"},{\"name\":\"subtractedValue\",\"type\":\"uint256\"}],\"name\":\"decreaseAllowance\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"to\",\"type\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"spent\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_amount\",\"type\":\"uint256\"},{\"name\":\"_hash\",\"type\":\"bytes32\"}],\"name\":\"commitment\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\"}],\"payable\":false,\"stateMutability\":\"pure\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_amount\",\"type\":\"uint256\"},{\"name\":\"_hash\",\"type\":\"bytes32\"},{\"name\":\"_r\",\"type\":\"bytes32\"},{\"name\":\"_s\",\"type\":\"bytes32\"},{\"name\":\"_v\",\"type\":\"uint8\"}],\"name\":\"verifySig\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"owner\",\"type\":\"address\"},{\"name\":\"spender\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"_owner\",\"type\":\"address\"},{\"name\":\"_name\",\"type\":\"string\"},{\"name\":\"_symbol\",\"type\":\"string\"},{\"name\":\"_decimals\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"_to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"LogMint\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"_to\",\"type\":\"bytes\"},{\"indexed\":false,\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"LogBurn\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"}]",
+	"0x981A342073215904C5069CD64204898501689E0f": "[{\"constant\":false,\"inputs\":[{\"name\":\"_token\",\"type\":\"address\"}],\"name\":\"withdrawFees\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"string\"}],\"name\":\"shiftedTokens\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_name\",\"type\":\"string\"},{\"name\":\"_symbol\",\"type\":\"string\"},{\"name\":\"_decimals\",\"type\":\"uint8\"}],\"name\":\"newShiftedToken\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_token\",\"type\":\"address\"},{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_amount\",\"type\":\"uint256\"},{\"name\":\"_hash\",\"type\":\"bytes32\"},{\"name\":\"_commitment\",\"type\":\"bytes32\"}],\"name\":\"sigHash\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\"}],\"payable\":false,\"stateMutability\":\"pure\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"spent\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_token\",\"type\":\"address\"},{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_amount\",\"type\":\"uint256\"},{\"name\":\"_hash\",\"type\":\"bytes32\"},{\"name\":\"_commitment\",\"type\":\"bytes32\"},{\"name\":\"_sig\",\"type\":\"bytes\"}],\"name\":\"shiftIn\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_token\",\"type\":\"address\"},{\"name\":\"_to\",\"type\":\"bytes\"},{\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"shiftOut\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"fee\",\"outputs\":[{\"name\":\"\",\"type\":\"uint16\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"address\"}],\"name\":\"isShiftedToken\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"vault\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_token\",\"type\":\"address\"},{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_amount\",\"type\":\"uint256\"},{\"name\":\"_hash\",\"type\":\"bytes32\"},{\"name\":\"_commitment\",\"type\":\"bytes32\"},{\"name\":\"_sig\",\"type\":\"bytes\"}],\"name\":\"verifySig\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"_owner\",\"type\":\"address\"},{\"name\":\"_vault\",\"type\":\"address\"},{\"name\":\"_fee\",\"type\":\"uint16\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"_token\",\"type\":\"string\"},{\"indexed\":false,\"name\":\"_to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"LogShiftIn\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"_token\",\"type\":\"string\"},{\"indexed\":false,\"name\":\"_to\",\"type\":\"bytes\"},{\"indexed\":false,\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"LogShiftOut\",\"type\":\"event\"}]",
 }

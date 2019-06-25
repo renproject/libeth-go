@@ -22,12 +22,24 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
+// RenNetwork identifies which set of contract to use.
+type RenNetwork string
+
+// Ren networks.
+const (
+	Mainnet = RenNetwork("mainnet")
+	Ropsten = RenNetwork("ropsten")
+	Testnet = RenNetwork("testnet")
+	Devnet  = RenNetwork("devnet")
+)
+
 // ErrCannotConvertToBigInt is returned when string cannot be parsed into a
 // big.Int format.
 var ErrCannotConvertToBigInt = errors.New("cannot convert hex string to int: invalid format")
 
 // Client will have a connection to an ethereum client (specified by the url)
 type Client struct {
+	renNetwork  RenNetwork
 	ethClient   *ethclient.Client
 	ethWSClient *ethclient.Client
 	ens         *ens.ENS
@@ -38,39 +50,71 @@ type Client struct {
 }
 
 // NewMercuryClient creates a new infura client
-func NewMercuryClient(network, tag string) (Client, error) {
+func NewMercuryClient(renNetwork RenNetwork, tag string) (Client, error) {
 	if tag != "" {
 		tag = fmt.Sprintf("?tag=%s", tag)
 	}
-	network = strings.ToLower(network)
-	switch network {
-	case "mainnet":
-		return Connect(fmt.Sprintf("https://ren-mercury.herokuapp.com/eth%s", tag))
-	case "kovan":
-		return Connect(fmt.Sprintf("https://ren-mercury.herokuapp.com/eth-kovan%s", tag))
-	case "ropsten":
-		return Connect(fmt.Sprintf("https://ren-mercury.herokuapp.com/eth-ropsten%s", tag))
+
+	var network string
+	switch renNetwork {
+	case Mainnet:
+		network = "eth"
+	case Testnet:
+		network = "eth-kovan"
+	case Devnet:
+		network = "eth-kovan"
+	case Ropsten:
+		network = "eth-ropsten"
 	default:
-		return Client{}, fmt.Errorf("unsupported network: %s", network)
+		return Client{}, fmt.Errorf("unsupported network: %s", renNetwork)
 	}
+
+	return Connect(renNetwork, fmt.Sprintf("https://ren-mercury.herokuapp.com/%s%s", network, tag))
 }
 
 // NewInfuraClient creates a new infura client
-func NewInfuraClient(network, apiKey string) (Client, error) {
-	return Connect(fmt.Sprintf("https://%s.infura.io/v3/%s", network, apiKey))
+func NewInfuraClient(renNetwork RenNetwork, apiKey string) (Client, error) {
+	var network string
+	switch renNetwork {
+	case Mainnet:
+		network = "mainnet"
+	case Testnet:
+		network = "kovan"
+	case Devnet:
+		network = "kovan"
+	case Ropsten:
+		network = "ropsten"
+	default:
+		return Client{}, fmt.Errorf("unsupported network: %s", renNetwork)
+	}
+	return Connect(renNetwork, fmt.Sprintf("https://%s.infura.io/v3/%s", network, apiKey))
 }
 
 // NewFullInfuraClient creates a new infura client
-func NewFullInfuraClient(network, apiKey string) (Client, error) {
+func NewFullInfuraClient(renNetwork RenNetwork, apiKey string) (Client, error) {
+	var network string
+	switch renNetwork {
+	case Mainnet:
+		network = "mainnet"
+	case Testnet:
+		network = "kovan"
+	case Devnet:
+		network = "kovan"
+	case Ropsten:
+		network = "ropsten"
+	default:
+		return Client{}, fmt.Errorf("unsupported network: %s", renNetwork)
+	}
 	return NewClient(
+		renNetwork,
 		fmt.Sprintf("https://%s.infura.io/v3/%s", network, apiKey),
 		fmt.Sprintf("wss://%s.infura.io/ws/v3/%s", network, apiKey),
 	)
 }
 
 // NewClient creates a new client
-func NewClient(URL, wsURL string) (Client, error) {
-	client, err := Connect(URL)
+func NewClient(renNetwork RenNetwork, URL, wsURL string) (Client, error) {
+	client, err := Connect(renNetwork, URL)
 	if err != nil {
 		return Client{}, err
 	}
@@ -86,7 +130,7 @@ func NewClient(URL, wsURL string) (Client, error) {
 
 // Deprecated
 // Connect to an infura network (Supported networks: mainnet and kovan).
-func Connect(url string) (Client, error) {
+func Connect(renNetwork RenNetwork, url string) (Client, error) {
 
 	ethClient, err := ethclient.Dial(url)
 	if err != nil {
@@ -104,12 +148,12 @@ func Connect(url string) (Client, error) {
 	}
 
 	return Client{
-		ethClient: ethClient,
-		ens:       ens,
-		addrBook:  DefaultAddressBook(netID.Int64()),
-		contracts: DefaultContracts(netID.Int64()),
-		url:       url,
-		apiKey:    "R8F2CVXTVSCIDD2IQ2ZQP9P6VZADUWHDHN",
+		renNetwork: renNetwork,
+		ethClient:  ethClient,
+		ens:        ens,
+		addrBook:   NetworkAddressBook(renNetwork),
+		url:        url,
+		apiKey:     "R8F2CVXTVSCIDD2IQ2ZQP9P6VZADUWHDHN",
 	}, nil
 }
 
