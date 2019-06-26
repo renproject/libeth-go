@@ -41,11 +41,11 @@ var TestnetAddressBook = AddressBook{
 	"DarknodePayment":       common.HexToAddress("0x8E11B87547f4072CC8A094F2888201CAF4EA0B9e"),
 	"DarknodePaymentStore":  common.HexToAddress("0xA9411C3AD1fBE168fd119A3B32fB481a0b9877A9"),
 	// Shifter contracts
-	"ShifterRegistry": common.HexToAddress("0x89aB0D4e64b1cb7F961228b70595a46BF0761546"),
-	"BTCShifter":      common.HexToAddress("0xcAEd211A141BfbC7244F17a6dABeA7456b5E2Af5"),
-	"ZECShifter":      common.HexToAddress("0x65E967F51be974d002090BdC604C088B8b79Dbb3"),
-	"zBTC":            common.HexToAddress("0x7cf9A2de7D5e81e6d4372D9b20D27AB8267295d5"),
-	"zZEC":            common.HexToAddress("0x47b8941De0B214E0d18154B4fDa1DbE0d1484215"),
+	"ShifterRegistry": common.HexToAddress("0x40C605FF27411d3a2ea5A114D365a314cb7AC5f2"),
+	"BTCShifter":      common.HexToAddress("0x8a0E8dfC2389726DF1c0bAB874dd2C9A6031b28f"),
+	"ZECShifter":      common.HexToAddress("0xEeC88ec22E6582409631530F44E48057E7Ed9bBa"),
+	"zBTC":            common.HexToAddress("0x1aFf7F90Bab456637a17d666D647Ea441A189F2d"),
+	"zZEC":            common.HexToAddress("0x51f41985134842Aa009CACdD28B2C69fA97C4738"),
 	// Tokens
 	"WBTC": common.HexToAddress("0xA1D3EEcb76285B4435550E4D963B8042A8bffbF0"),
 	"REN":  common.HexToAddress("0x2CD647668494c1B15743AB283A0f980d90a87394"),
@@ -68,11 +68,11 @@ var DevnetAddressBook = AddressBook{
 	"DarknodePayment":       common.HexToAddress("0x1f1b1d015Fc31d425C616cC35E39e31686DA69A8"),
 	"DarknodePaymentStore":  common.HexToAddress("0x6341DF1012E862f766Fcd72e0fCAAc5a3839CFef"),
 	// Shifter contracts
-	"ShifterRegistry": common.HexToAddress("0xA28cC8B81906D2A42beF0bF782CECe3b75f91E6b"),
-	"BTCShifter":      common.HexToAddress("0x11172e0c457019Bec60f342c2171CF762D64Be18"),
-	"ZECShifter":      common.HexToAddress("0x12B0beA3b382237Fc5264C609e84fc7171de38F2"),
-	"zBTC":            common.HexToAddress("0xef44c39102Ab3479F271e2fb3F27dB56D13b7a42"),
-	"zZEC":            common.HexToAddress("0x5c67129a465Ae131CD47F97a4B57C6d0eEaFe2e6"),
+	"ShifterRegistry": common.HexToAddress("0x7E1E8698bDB429D63B492D7795af039926006386"),
+	"BTCShifter":      common.HexToAddress("0x7a40fE9FB464510215C41Eae1216973514eeEBB1"),
+	"ZECShifter":      common.HexToAddress("0x5345425363A49904De0746E7c991B05380E42E27"),
+	"zBTC":            common.HexToAddress("0x4eB1403f565c3e3145Afc3634F16e2F092545C2a"),
+	"zZEC":            common.HexToAddress("0x92E9aC7c07bb40eD9DAF1DbD88E7Dd77f5754529"),
 	// Tokens
 	"WBTC": common.HexToAddress("0xA1D3EEcb76285B4435550E4D963B8042A8bffbF0"),
 	"REN":  common.HexToAddress("0x2CD647668494c1B15743AB283A0f980d90a87394"),
