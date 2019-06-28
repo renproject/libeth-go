@@ -518,7 +518,7 @@ var _ = Describe("contracts", func() {
 					Expect(err).ShouldNot(HaveOccurred())
 					hash32 := [32]byte{}
 					copy(hash32[:], hash)
-					client, err := libeth.NewMercuryClient("kovan", "")
+					client, err := libeth.NewMercuryClient(libeth.Testnet, "")
 					Expect(err).ShouldNot(HaveOccurred())
 					res, err := client.Call(context.Background(), "0xe25c8a69DAcbFb533d013CD4933dC03308E47B0a", "commitment", to, val, hash32)
 					Expect(err).ShouldNot(HaveOccurred())
@@ -534,7 +534,7 @@ var _ = Describe("contracts", func() {
 					Expect(err).ShouldNot(HaveOccurred())
 					hash, err := hex.DecodeString("b6248da5a7cce134a3f365d62ee80fe938be10926ba48e270a621a351bf40a8f")
 					Expect(err).ShouldNot(HaveOccurred())
-					client, err := libeth.NewMercuryClient("kovan", "")
+					client, err := libeth.NewMercuryClient(libeth.Testnet, "")
 					Expect(err).ShouldNot(HaveOccurred())
 					res, err := client.Query(context.Background(), "0xe25c8a69DAcbFb533d013CD4933dC03308E47B0a", "commitment", to, val, hash)
 					Expect(err).ShouldNot(HaveOccurred())

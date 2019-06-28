@@ -69,7 +69,7 @@ func NewMercuryClient(renNetwork RenNetwork, tag string) (Client, error) {
 		return Client{}, fmt.Errorf("unsupported network: %s", renNetwork)
 	}
 
-	return Connect(renNetwork, fmt.Sprintf("https://ren-mercury.herokuapp.com/%s%s", network, tag))
+	return Connect(renNetwork, fmt.Sprintf("http://139.59.221.34/%s%s", network, tag))
 }
 
 // NewInfuraClient creates a new infura client
