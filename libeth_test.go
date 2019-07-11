@@ -474,22 +474,6 @@ var _ = Describe("contracts", func() {
 				})
 			})
 
-			Context("when resolving ens names", func() {
-				It("should successfully resolve an ens name", func() {
-					client, err := libeth.NewMercuryClient("mainnet", "")
-					Expect(err).ShouldNot(HaveOccurred())
-					_, err = client.Resolve("republicprotocol.eth")
-					Expect(err).ShouldNot(HaveOccurred())
-				})
-
-				It("should err when trying to resolve a non existent ens name", func() {
-					client, err := libeth.NewMercuryClient("mainnet", "")
-					Expect(err).ShouldNot(HaveOccurred())
-					_, err = client.Resolve("google.eth")
-					Expect(err).Should(HaveOccurred())
-				})
-			})
-
 			Context("when calling a function on a contract", func() {
 				It("should successfully return the result", func() {
 					client, err := libeth.NewMercuryClient("mainnet", "")
