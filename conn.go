@@ -26,10 +26,11 @@ type RenNetwork string
 
 // Ren networks.
 const (
-	Mainnet = RenNetwork("mainnet")
-	Ropsten = RenNetwork("ropsten")
-	Testnet = RenNetwork("testnet")
-	Devnet  = RenNetwork("devnet")
+	Mainnet  = RenNetwork("mainnet")
+	Ropsten  = RenNetwork("ropsten")
+	Testnet  = RenNetwork("testnet")
+	Devnet   = RenNetwork("devnet")
+	Localnet = RenNetwork("localnet")
 )
 
 // ErrCannotConvertToBigInt is returned when string cannot be parsed into a
@@ -61,6 +62,8 @@ func NewMercuryClient(renNetwork RenNetwork, tag string) (Client, error) {
 		network = "eth-kovan"
 	case Devnet:
 		network = "eth-kovan"
+	case Localnet:
+		network = "eth-kovan"
 	case Ropsten:
 		network = "eth-ropsten"
 	default:
@@ -80,6 +83,8 @@ func NewInfuraClient(renNetwork RenNetwork, apiKey string) (Client, error) {
 		network = "kovan"
 	case Devnet:
 		network = "kovan"
+	case Localnet:
+		network = "kovan"
 	case Ropsten:
 		network = "ropsten"
 	default:
@@ -97,6 +102,8 @@ func NewFullInfuraClient(renNetwork RenNetwork, apiKey string) (Client, error) {
 	case Testnet:
 		network = "kovan"
 	case Devnet:
+		network = "kovan"
+	case Localnet:
 		network = "kovan"
 	case Ropsten:
 		network = "ropsten"
