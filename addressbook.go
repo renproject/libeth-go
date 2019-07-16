@@ -41,7 +41,7 @@ var TestnetAddressBook = AddressBook{
 	"DarknodePayment":       common.HexToAddress("0x8E11B87547f4072CC8A094F2888201CAF4EA0B9e"),
 	"DarknodePaymentStore":  common.HexToAddress("0xA9411C3AD1fBE168fd119A3B32fB481a0b9877A9"),
 	// Shifter contracts
-	"ShifterRegistry": common.HexToAddress("0x40C605FF27411d3a2ea5A114D365a314cb7AC5f2"),
+	"ShifterRegistry": common.HexToAddress("0x1a62cE8d00d061A05A70dB318f7dfE9Ecd9fFcB0"),
 	"zBTC":            common.HexToAddress("0x1aFf7F90Bab456637a17d666D647Ea441A189F2d"),
 	"BTCShifter":      common.HexToAddress("0x8a0E8dfC2389726DF1c0bAB874dd2C9A6031b28f"),
 	"zZEC":            common.HexToAddress("0x51f41985134842Aa009CACdD28B2C69fA97C4738"),
@@ -68,7 +68,7 @@ var DevnetAddressBook = AddressBook{
 	"DarknodePayment":       common.HexToAddress("0x1f1b1d015Fc31d425C616cC35E39e31686DA69A8"),
 	"DarknodePaymentStore":  common.HexToAddress("0x6341DF1012E862f766Fcd72e0fCAAc5a3839CFef"),
 	// Shifter contracts
-	"ShifterRegistry": common.HexToAddress("0x7E1E8698bDB429D63B492D7795af039926006386"),
+	"ShifterRegistry": common.HexToAddress("0x797029C0e76Bb9c8827802c68a5df6e6D93aC14f"),
 	"zBTC":            common.HexToAddress("0x4eB1403f565c3e3145Afc3634F16e2F092545C2a"),
 	"BTCShifter":      common.HexToAddress("0x7a40fE9FB464510215C41Eae1216973514eeEBB1"),
 	"zZEC":            common.HexToAddress("0x92E9aC7c07bb40eD9DAF1DbD88E7Dd77f5754529"),
